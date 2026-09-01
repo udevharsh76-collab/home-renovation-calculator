@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 import MaterialDatabase from "./MaterialDatabase";
+import CalculatorLayout from "./CalculatorLayout";
+
 import BrickCalculation from "./BrickCalculation";
 import TileCalculation from "./TileCalculation";
 import CementCalculation from "./CementCalculation";
@@ -11,11 +13,6 @@ import FlooringCalculation from "./FlooringCalculation";
 import SteelCalculation from "./SteelCalculation";
 import ElectricalCalculation from "./ElectricalCalculation";
 import PlumbingCalculation from "./PlumbingCalculation";
-
-
-
-
-
 
 function App() {
   const [screen, setScreen] = useState("database");
@@ -31,7 +28,6 @@ function App() {
       return;
     }
 
-    
     if (materials.includes("cement")) {
       setScreen("cement");
       return;
@@ -52,12 +48,12 @@ function App() {
       return;
     }
 
-     if (materials.includes("flooring")) {
+    if (materials.includes("flooring")) {
       setScreen("flooring");
       return;
     }
 
-         if (materials.includes("steel")) {
+    if (materials.includes("steel")) {
       setScreen("steel");
       return;
     }
@@ -68,54 +64,36 @@ function App() {
     }
 
     if (materials.includes("plumbing")) {
-       setScreen("plumbing");
+      setScreen("plumbing");
       return;
     }
-
-
   };
 
-  if (screen === "bricks") {
-    return <BrickCalculation />;
+  const calculators = {
+    bricks: BrickCalculation,
+    tiles: TileCalculation,
+    cement: CementCalculation,
+    sand: SandCalculation,
+    paint: PaintCalculation,
+    putty: PuttyCalculation,
+    flooring: FlooringCalculation,
+    steel: SteelCalculation,
+    electrical: ElectricalCalculation,
+    plumbing: PlumbingCalculation,
+  };
+
+  if (calculators[screen]) {
+    const Calculator = calculators[screen];
+
+    return (
+      <CalculatorLayout
+        onBack={() => setScreen("database")}
+      >
+        <Calculator />
+      </CalculatorLayout>
+    );
   }
 
-  if (screen === "tiles") {
-    return <TileCalculation />;
-  }
-
-  if (screen === "cement") {
-    return <CementCalculation />;
-  }
-
-  if (screen === "sand") {
-    return <SandCalculation />;
-  }
-
-  if (screen === "paint") {
-    return <PaintCalculation />;
-  }
-
-  if (screen === "putty") {
-    return <PuttyCalculation />;
-  }
-
-   if (screen === "flooring") {
-    return <FlooringCalculation />;
-  }
-
-  if (screen === "steel") {
-    return <SteelCalculation />;
-  }
-
-  if (screen === "electrical") {
-    return <ElectricalCalculation />;
-  }
-
-  if (screen === "plumbing") {
-     return <PlumbingCalculation />;
-  }
-
-    
   return (
     <MaterialDatabase
       onCalculate={handleCalculate}
