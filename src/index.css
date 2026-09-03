@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+/* Shared calculator treatment: white cards on a subtle blue-tinted workspace. */
+.calculator-shell > div {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 48%, #ecfeff 100%) !important;
+}
+
+.calculator-shell header {
+  border-color: #e2e8f0 !important;
+  background-color: #ffffff !important;
+}
+
+.calculator-shell header h1 {
+  font-size: 1.625rem !important;
+  line-height: 1.875rem !important;
+  letter-spacing: -0.025em;
+}
+
+.calculator-shell header p {
+  font-size: 0.75rem !important;
+  color: #64748b !important;
+}
+
+.calculator-shell input,
+.calculator-shell select {
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.calculator-shell input:focus,
+.calculator-shell select:focus {
+  border-color: #1e40af !important;
+  box-shadow: 0 0 0 3px rgb(219 234 254 / 0.85) !important;
+}
+
+.calculator-shell :is(div:has(> input), div:has(> select)) > p {
+  margin-top: 0.5rem;
+  border-left: 2px solid #67e8f9;
+  border-radius: 0.25rem;
+  background: #ecfeff;
+  padding: 0.4rem 0.55rem;
+  color: #0e7490 !important;
+}
+
+.calculator-shell section[class*="border"] {
+  border-color: #dbeafe !important;
+  box-shadow: 0 10px 20px rgb(15 23 42 / 0.07);
+}

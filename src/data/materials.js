@@ -49,4 +49,9 @@ export const MATERIALS = [
     name: "Plumbing",
     description: "Calculate plumbing material quantity and cost.",
   },
+  {
+    id: "labour",
+    name: "Labour / Work",
+    description: "Calculate labour costs for masonry, plaster, flooring, painting, plumbing, electrical and other renovation work.",
+  },
 ];

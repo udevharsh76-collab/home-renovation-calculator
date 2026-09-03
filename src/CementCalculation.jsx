@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export default function CementCalculation() {
+export default function CementCalculation({ onResult }) {
   const [workType, setWorkType] = useState("rcc");
 
   // =========================
@@ -99,10 +99,7 @@ export default function CementCalculation() {
     let dryVolumeFt3 = 0;
     let cementVolumeFt3 = 0;
 
-    // =========================
     // RCC / CONCRETE
-    // =========================
-
     if (workType === "rcc") {
       const length = lengthToFeet(
         rccLength,
@@ -121,7 +118,6 @@ export default function CementCalculation() {
 
       wetVolumeFt3 = length * width * depth;
 
-      // Dry volume factor for concrete
       dryVolumeFt3 = wetVolumeFt3 * 1.54;
 
       const cementParts =
@@ -145,10 +141,7 @@ export default function CementCalculation() {
       }
     }
 
-    // =========================
     // BRICK MASONRY
-    // =========================
-
     if (workType === "brick_masonry") {
       const length = lengthToFeet(
         wallLength,
@@ -190,7 +183,6 @@ export default function CementCalculation() {
         height *
         thickness;
 
-      // Brick volume including mortar allowance
       const brickWithMortarVolume =
         (brickL + mortar) *
         (brickW + mortar) *
@@ -201,7 +193,6 @@ export default function CementCalculation() {
           ? wetVolumeFt3 / brickWithMortarVolume
           : 0;
 
-      // Actual volume occupied by bricks
       const actualBrickVolume =
         brickL *
         brickW *
@@ -211,7 +202,6 @@ export default function CementCalculation() {
         brickCount *
         actualBrickVolume;
 
-      // Wet mortar volume
       const mortarWetVolume =
         Math.max(
           wetVolumeFt3 -
@@ -219,7 +209,6 @@ export default function CementCalculation() {
           0
         );
 
-      // Dry mortar volume factor
       dryVolumeFt3 =
         mortarWetVolume * 1.33;
 
@@ -240,10 +229,7 @@ export default function CementCalculation() {
       }
     }
 
-    // =========================
     // PLASTER
-    // =========================
-
     if (workType === "plaster") {
       const areaSqFt =
         areaToSqFt(
@@ -261,7 +247,6 @@ export default function CementCalculation() {
         areaSqFt *
         thicknessFt;
 
-      // Dry mortar factor
       dryVolumeFt3 =
         wetVolumeFt3 * 1.33;
 
@@ -282,10 +267,7 @@ export default function CementCalculation() {
       }
     }
 
-    // =========================
     // FLOOR SCREED
-    // =========================
-
     if (workType === "floor_screed") {
       const areaSqFt =
         areaToSqFt(
@@ -323,10 +305,7 @@ export default function CementCalculation() {
       }
     }
 
-    // =========================
     // TILE BEDDING
-    // =========================
-
     if (workType === "tile_bedding") {
       const areaSqFt =
         areaToSqFt(
@@ -364,19 +343,10 @@ export default function CementCalculation() {
       }
     }
 
-    // =========================
-    // CONVERT CEMENT VOLUME
-    // =========================
-
-    // cementVolumeFt3 is in cubic feet.
-    // Convert to cubic metres before calculating bags.
-
+    // CEMENT CONVERSION
     const cementVolumeM3 =
       cementVolumeFt3 *
       0.028316846592;
-
-    // Approximate bulk density of cement
-    // 1 m3 cement ≈ 1440 kg
 
     const baseCementKg =
       cementVolumeM3 * 1440;
@@ -384,10 +354,7 @@ export default function CementCalculation() {
     const baseCementBags =
       baseCementKg / 50;
 
-    // =========================
     // WASTAGE
-    // =========================
-
     const wastagePercent =
       Number(wastage) || 0;
 
@@ -405,10 +372,7 @@ export default function CementCalculation() {
     const finalBags =
       finalKg / 50;
 
-    // =========================
     // COST
-    // =========================
-
     const cementRate =
       Number(rate) || 0;
 
@@ -495,7 +459,77 @@ export default function CementCalculation() {
   };
 
   // =========================
-  // MONEY FORMAT
+  // SEND RESULT TO BOQ
+  // =========================
+
+  useEffect(() => {
+    if (!onResult) return;
+
+    if (calculation.finalBags <= 0) {
+      onResult(null);
+      return;
+    }
+
+    onResult({
+      id: "cement",
+
+      material: "Cement",
+
+      category: "Civil & Masonry",
+
+      specification:
+        workTypeName[workType],
+
+      description:
+        `${workTypeName[workType]} cement requirement`,
+
+      quantity:
+        calculation.baseCementBags,
+
+      wastage:
+        Number(wastage) || 0,
+
+      wastageQuantity:
+        calculation.wastageBags,
+
+      finalQuantity:
+        calculation.finalBags,
+
+      unit: "bags",
+
+      rate:
+        Number(rate) || 0,
+
+      amount:
+        calculation.materialCost,
+
+      cost:
+        calculation.materialCost,
+
+      baseQuantity:
+        calculation.baseCementBags,
+
+      finalKg:
+        calculation.finalKg,
+
+      wastageKg:
+        calculation.wastageKg,
+
+      formula:
+        `${workTypeName[workType]} cement calculation`,
+
+      workType,
+    });
+  }, [
+    calculation,
+    workType,
+    wastage,
+    rate,
+    onResult,
+  ]);
+
+  // =========================
+  // MONEY
   // =========================
 
   const money = (value) =>
@@ -508,13 +542,8 @@ export default function CementCalculation() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
 
-      {/* =========================
-          HEADER
-      ========================= */}
-
       <header className="border-b bg-white">
         <div className="mx-auto max-w-6xl px-6 py-5">
-
           <h1 className="text-3xl font-bold text-blue-800">
             Renovate
             <span className="text-gray-800">
@@ -525,18 +554,12 @@ export default function CementCalculation() {
           <p className="mt-1 text-sm text-gray-500">
             Renovation Material Calculator
           </p>
-
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-10">
 
-        {/* =========================
-            TITLE
-        ========================= */}
-
         <div>
-
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-700">
             Cement Calculator
           </p>
@@ -550,12 +573,9 @@ export default function CementCalculation() {
             will use the appropriate cement calculation
             method for that work.
           </p>
-
         </div>
 
-        {/* =========================
-            WORK TYPE
-        ========================= */}
+        {/* WORK TYPE */}
 
         <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
 
@@ -581,7 +601,6 @@ export default function CementCalculation() {
               }
               className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
             >
-
               <option value="rcc">
                 RCC / Concrete
               </option>
@@ -601,16 +620,13 @@ export default function CementCalculation() {
               <option value="tile_bedding">
                 Tile Bedding
               </option>
-
             </select>
 
           </div>
 
         </section>
 
-        {/* =========================
-            RCC
-        ========================= */}
+        {/* RCC */}
 
         {workType === "rcc" && (
           <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -694,9 +710,7 @@ export default function CementCalculation() {
           </section>
         )}
 
-        {/* =========================
-            BRICK MASONRY
-        ========================= */}
+        {/* BRICK MASONRY */}
 
         {workType === "brick_masonry" && (
           <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -815,9 +829,7 @@ export default function CementCalculation() {
           </section>
         )}
 
-        {/* =========================
-            PLASTER
-        ========================= */}
+        {/* PLASTER */}
 
         {workType === "plaster" && (
           <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -875,9 +887,7 @@ export default function CementCalculation() {
           </section>
         )}
 
-        {/* =========================
-            FLOOR SCREED
-        ========================= */}
+        {/* FLOOR SCREED */}
 
         {workType === "floor_screed" && (
           <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -935,9 +945,7 @@ export default function CementCalculation() {
           </section>
         )}
 
-        {/* =========================
-            TILE BEDDING
-        ========================= */}
+        {/* TILE BEDDING */}
 
         {workType === "tile_bedding" && (
           <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -995,9 +1003,7 @@ export default function CementCalculation() {
           </section>
         )}
 
-        {/* =========================
-            COMMON RATE / WASTAGE
-        ========================= */}
+        {/* RATE / WASTAGE */}
 
         <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
 
@@ -1039,9 +1045,7 @@ export default function CementCalculation() {
 
         </section>
 
-        {/* =========================
-            RESULTS
-        ========================= */}
+        {/* RESULTS */}
 
         <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
 
@@ -1135,10 +1139,6 @@ export default function CementCalculation() {
 
       </main>
 
-      {/* =========================
-          FOOTER
-      ========================= */}
-
       <footer className="mt-16 bg-blue-950 px-6 py-8 text-center text-blue-100">
 
         <p className="text-xl font-bold">
@@ -1165,9 +1165,7 @@ export default function CementCalculation() {
 function lengthToFeet(value, unit) {
   const number = Number(value) || 0;
 
-  if (unit === "ft") {
-    return number;
-  }
+  if (unit === "ft") return number;
 
   if (unit === "m") {
     return number * 3.280839895;
@@ -1195,9 +1193,7 @@ function lengthToFeet(value, unit) {
 function areaToSqFt(value, unit) {
   const number = Number(value) || 0;
 
-  if (unit === "sqft") {
-    return number;
-  }
+  if (unit === "sqft") return number;
 
   if (unit === "sqm") {
     return number * 10.7639104167;
@@ -1263,7 +1259,6 @@ function InputWithUnit({
         }
         className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
       >
-
         {units.map(([value, label]) => (
           <option
             key={value}
@@ -1272,7 +1267,6 @@ function InputWithUnit({
             {label}
           </option>
         ))}
-
       </select>
 
     </div>

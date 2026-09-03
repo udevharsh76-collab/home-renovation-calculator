@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import MaterialDatabase from "./MaterialDatabase";
-import CalculatorLayout from "./CalculatorLayout";
 
 import BrickCalculation from "./BrickCalculation";
 import TileCalculation from "./TileCalculation";
@@ -13,58 +12,79 @@ import FlooringCalculation from "./FlooringCalculation";
 import SteelCalculation from "./SteelCalculation";
 import ElectricalCalculation from "./ElectricalCalculation";
 import PlumbingCalculation from "./PlumbingCalculation";
+import LabourCalculation from "./LabourCalculation";
+
+import ShoppingList from "./ShoppingList";
+import BOQ from "./BOQ";
 
 function App() {
   const [screen, setScreen] = useState("database");
 
-  const handleCalculate = (materials) => {
-    if (materials.includes("bricks")) {
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
+
+  const [boqItems, setBoqItems] = useState([]);
+
+  /*
+   * LABOUR TOTAL
+   *
+   * This stores the total calculated by LabourCalculation.jsx.
+   * BOQ receives this value automatically.
+   */
+  const [labourTotal, setLabourTotal] = useState(0);
+
+  const handleCalculate = () => {
+    if (selectedMaterials.includes("bricks")) {
       setScreen("bricks");
       return;
     }
 
-    if (materials.includes("tiles")) {
+    if (selectedMaterials.includes("tiles")) {
       setScreen("tiles");
       return;
     }
 
-    if (materials.includes("cement")) {
+    if (selectedMaterials.includes("cement")) {
       setScreen("cement");
       return;
     }
 
-    if (materials.includes("sand")) {
+    if (selectedMaterials.includes("sand")) {
       setScreen("sand");
       return;
     }
 
-    if (materials.includes("paint")) {
+    if (selectedMaterials.includes("paint")) {
       setScreen("paint");
       return;
     }
 
-    if (materials.includes("putty")) {
+    if (selectedMaterials.includes("putty")) {
       setScreen("putty");
       return;
     }
 
-    if (materials.includes("flooring")) {
+    if (selectedMaterials.includes("flooring")) {
       setScreen("flooring");
       return;
     }
 
-    if (materials.includes("steel")) {
+    if (selectedMaterials.includes("steel")) {
       setScreen("steel");
       return;
     }
 
-    if (materials.includes("electrical")) {
+    if (selectedMaterials.includes("electrical")) {
       setScreen("electrical");
       return;
     }
 
-    if (materials.includes("plumbing")) {
+    if (selectedMaterials.includes("plumbing")) {
       setScreen("plumbing");
+      return;
+    }
+
+    if (selectedMaterials.includes("labour")) {
+      setScreen("labour");
       return;
     }
   };
@@ -80,23 +100,139 @@ function App() {
     steel: SteelCalculation,
     electrical: ElectricalCalculation,
     plumbing: PlumbingCalculation,
+    labour: LabourCalculation,
   };
+
+  const materialNames = {
+    bricks: "Bricks",
+    tiles: "Tiles",
+    cement: "Cement",
+    sand: "Sand",
+    paint: "Paint",
+    putty: "Putty",
+    flooring: "Flooring",
+    steel: "Steel",
+    electrical: "Electrical",
+    plumbing: "Plumbing",
+    labour: "Labour",
+  };
+
+  /*
+   * ============================================================
+   * SHOPPING LIST
+   * ============================================================
+   */
+
+  if (screen === "shopping-list") {
+    return (
+      <ShoppingList
+        onBack={() => setScreen("database")}
+        onBOQ={(items) => {
+          setBoqItems(items);
+          setScreen("boq");
+        }}
+      />
+    );
+  }
+
+  /*
+   * ============================================================
+   * BOQ
+   * ============================================================
+   */
+
+  if (screen === "boq") {
+    return (
+      <BOQ
+        items={boqItems}
+        labourTotal={labourTotal}
+        onBack={() => setScreen("shopping-list")}
+      />
+    );
+  }
+
+  /*
+   * ============================================================
+   * MATERIAL CALCULATORS
+   * ============================================================
+   */
 
   if (calculators[screen]) {
     const Calculator = calculators[screen];
 
     return (
-      <CalculatorLayout
-        onBack={() => setScreen("database")}
-      >
-        <Calculator />
-      </CalculatorLayout>
+      <div className="calculator-shell relative">
+
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30">
+
+          <div className="mx-auto flex max-w-6xl items-center justify-end gap-2 px-6 py-3 sm:py-4">
+
+            {selectedMaterials.length > 1 && (
+              <label className="pointer-events-auto hidden items-center gap-2 rounded-md border border-slate-200 bg-white/95 px-2.5 py-1.5 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur lg:flex">
+
+                Calculator
+
+                <select
+                  value={screen}
+                  onChange={(event) =>
+                    setScreen(event.target.value)
+                  }
+                  className="bg-transparent font-semibold text-slate-800 outline-none"
+                  aria-label="Choose a selected material calculator"
+                >
+
+                  {selectedMaterials.map((material) => (
+                    <option
+                      key={material}
+                      value={material}
+                    >
+                      {materialNames[material]}
+                    </option>
+                  ))}
+
+                </select>
+
+              </label>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setScreen("database")}
+              className="pointer-events-auto inline-flex items-center gap-1.5 rounded-md bg-blue-800 px-3.5 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-950/15 transition hover:bg-blue-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200"
+            >
+              ← Materials
+            </button>
+
+          </div>
+
+        </div>
+
+        {screen === "labour" ? (
+          <LabourCalculation
+            onResult={setLabourTotal}
+          />
+        ) : (
+          <Calculator />
+        )}
+
+      </div>
     );
   }
+
+  /*
+   * ============================================================
+   * MATERIAL DATABASE
+   * ============================================================
+   */
 
   return (
     <MaterialDatabase
       onCalculate={handleCalculate}
+      selectedMaterials={selectedMaterials}
+      onSelectedMaterialsChange={setSelectedMaterials}
+      onShoppingList={() =>
+        setScreen("shopping-list")
+      }
     />
   );
 }
