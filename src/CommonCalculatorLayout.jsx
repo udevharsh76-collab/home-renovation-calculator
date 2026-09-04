@@ -1,10 +1,4 @@
-/*
-=============================================================
-RENOVATECALC - COMMON CALCULATOR UI
-=============================================================
-ONE COMMON LAYOUT FOR ALL MATERIAL CALCULATORS
-=============================================================
-*/
+import React from "react";
 
 export default function CommonCalculatorLayout({
   materialName = "Material",
@@ -15,95 +9,50 @@ export default function CommonCalculatorLayout({
   onBack,
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
 
       {/* HEADER */}
-      <header className="sticky top-0 z-20 border-b border-blue-100 bg-white/95 shadow-sm backdrop-blur">
-
+      <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
 
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-blue-800">
-              Renovate
-              <span className="text-gray-900">
-                Calc
-              </span>
-            </h1>
-
-            <p className="mt-1 text-sm font-medium text-gray-500">
-              {subtitle}
-            </p>
-          </div>
-
-          {/* COMMON BACK BUTTON */}
           {onBack && (
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-900/15 transition duration-200 hover:bg-blue-800 hover:shadow-lg hover:shadow-blue-900/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 active:translate-y-px"
+              className="rounded-xl border border-slate-200 px-4 py-2 text-slate-600"
             >
-              <svg
-                aria-hidden="true"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Materials
+              ←
             </button>
           )}
 
-        </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900">
+              {materialName}
+            </h1>
 
-      </header>
-
-
-      {/* MAIN CONTENT */}
-      <main className="mx-auto max-w-7xl px-6 py-10">
-
-        {/* PAGE TITLE */}
-        <div className="mb-8">
-
-          <div className="mb-3 inline-flex items-center rounded-full bg-blue-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-blue-800">
-            {materialName} Calculator
+            <p className="mt-1 text-sm text-slate-500">
+              {subtitle}
+            </p>
           </div>
 
-          <h2 className="text-4xl font-extrabold tracking-tight text-gray-900">
-            {materialName} Calculation
-          </h2>
-
-          <p className="mt-3 max-w-3xl text-gray-600">
-            Enter your project measurements and material
-            requirements. RenovateCalc will calculate the
-            required quantity, wastage and estimated cost.
-          </p>
-
         </div>
+      </header>
 
+      {/* INPUTS → CALCULATE → RESULT */}
+      <main className="mx-auto max-w-7xl px-6 py-10">
 
-        {/* CALCULATOR INPUT AREA */}
-        <div className="space-y-7">
+        <section>
           {children}
-        </div>
+        </section>
 
-
-        {/* RESULTS */}
+        {/* RESULT */}
         {resultContent && (
-          <section className="mt-8 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-lg">
+          <section className="mt-10 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-            <div className="border-b border-blue-100 bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-5 text-white">
-
-              <p className="text-xs font-bold uppercase tracking-widest text-blue-100">
-                {materialName}
-              </p>
-
-              <h3 className="mt-1 text-2xl font-bold">
+            <div className="border-b border-slate-200 bg-blue-50 px-6 py-5">
+              <h2 className="text-lg font-extrabold text-slate-900">
                 {resultTitle}
-              </h3>
-
+              </h2>
             </div>
 
             <div className="p-6">
@@ -115,25 +64,29 @@ export default function CommonCalculatorLayout({
 
       </main>
 
+      {/* SAVE TO PROJECT */}
+      <div
+        id="calculator-save-slot"
+        className="mx-auto max-w-7xl px-6 pb-8"
+      />
 
       {/* FOOTER */}
-      <footer className="mt-16 bg-gradient-to-r from-blue-950 to-indigo-950 px-6 py-10 text-center text-blue-100">
+      <footer className="bg-gradient-to-r from-blue-950 to-indigo-950 px-6 py-8 text-white">
+        <div className="mx-auto max-w-7xl">
 
-        <p className="text-2xl font-extrabold">
-          Renovate
-          <span className="text-white">
-            Calc
-          </span>
-        </p>
+          <h3 className="text-lg font-extrabold">
+            RenovateCalc
+          </h3>
 
-        <p className="mt-2 text-sm text-blue-200">
-          Smart renovation material estimation.
-        </p>
+          <p className="mt-1 text-sm text-blue-200">
+            Smart renovation material & cost calculation
+          </p>
 
-        <p className="mt-4 text-xs text-blue-300">
-          Measure → Calculate → Estimate → Plan
-        </p>
+          <p className="mt-4 text-xs text-blue-300">
+            © {new Date().getFullYear()} RenovateCalc
+          </p>
 
+        </div>
       </footer>
 
     </div>
@@ -141,44 +94,39 @@ export default function CommonCalculatorLayout({
 }
 
 
-/*
-=============================================================
-CALCULATOR SECTION
-=============================================================
-*/
+/* =========================================================
+   CALCULATOR SECTION
+========================================================= */
 
 export function CalculatorSection({
   title,
   description,
   children,
-  icon = "📐",
+  className = "",
 }) {
   return (
-    <section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-md transition hover:shadow-lg">
+    <section
+      className={`mb-8 rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}
+    >
+      {(title || description) && (
+        <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
 
-      <div className="flex items-start gap-4">
-
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-2xl">
-          {icon}
-        </div>
-
-        <div>
-
-          <h3 className="text-xl font-bold text-gray-900">
-            {title}
-          </h3>
+          {title && (
+            <h3 className="text-base font-extrabold text-slate-900">
+              {title}
+            </h3>
+          )}
 
           {description && (
-            <p className="mt-1 text-sm leading-6 text-gray-500">
+            <p className="mt-1 text-sm text-slate-500">
               {description}
             </p>
           )}
 
         </div>
+      )}
 
-      </div>
-
-      <div className="mt-6">
+      <div className="p-6">
         {children}
       </div>
 
@@ -187,53 +135,54 @@ export function CalculatorSection({
 }
 
 
-/*
-=============================================================
-INPUT
-=============================================================
-*/
+/* =========================================================
+   CALCULATOR INPUT
+========================================================= */
 
 export function CalculatorInput({
   label,
   value,
   onChange,
-  placeholder = "Enter value",
-  hint,
   type = "number",
+  placeholder = "",
+  required = false,
+  disabled = false,
+  min,
+  step = "any",
+  className = "",
 }) {
   return (
-    <div>
+    <div className={className}>
 
-      <label className="block text-sm font-bold text-gray-700">
+      <label className="mb-2 block text-sm font-bold text-slate-700">
         {label}
+
+        {required && (
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        )}
       </label>
 
       <input
         type={type}
-        min={type === "number" ? "0" : undefined}
-        step={type === "number" ? "any" : undefined}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+        disabled={disabled}
+        min={min}
+        step={step}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
       />
-
-      {hint && (
-        <p className="mt-2 text-xs leading-5 text-gray-500">
-          💡 {hint}
-        </p>
-      )}
 
     </div>
   );
 }
 
 
-/*
-=============================================================
-INPUT WITH UNIT
-=============================================================
-*/
+/* =========================================================
+   INPUT + UNIT
+========================================================= */
 
 export function CalculatorInputWithUnit({
   label,
@@ -241,145 +190,133 @@ export function CalculatorInputWithUnit({
   onChange,
   unit,
   onUnitChange,
-  units,
-  placeholder = "Enter value",
-  hint,
+  units = [],
+  type = "number",
+  placeholder = "",
+  required = false,
+  disabled = false,
+  min,
+  step = "any",
+  className = "",
 }) {
   return (
-    <div>
+    <div className={className}>
 
-      <label className="block text-sm font-bold text-gray-700">
+      <label className="mb-2 block text-sm font-bold text-slate-700">
         {label}
+
+        {required && (
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        )}
       </label>
 
-      <div className="mt-2 flex overflow-hidden rounded-xl border border-gray-300 bg-white shadow-sm focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100">
+      <div className="flex overflow-hidden rounded-xl border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
 
         <input
-          type="number"
-          min="0"
-          step="any"
+          type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="min-w-0 flex-1 border-0 px-4 py-3.5 text-gray-900 outline-none placeholder:text-gray-400"
+          disabled={disabled}
+          min={min}
+          step={step}
+          className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-slate-900 outline-none"
         />
 
         <select
           value={unit}
           onChange={(e) => onUnitChange(e.target.value)}
-          className="border-l border-gray-200 bg-blue-50 px-3 py-3.5 text-sm font-bold text-blue-800 outline-none"
+          disabled={disabled}
+          className="border-l border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 outline-none"
         >
-
-          {units.map(([unitValue, unitLabel]) => (
+          {units.map((item) => (
             <option
-              key={unitValue}
-              value={unitValue}
+              key={item.value ?? item}
+              value={item.value ?? item}
             >
-              {unitLabel}
+              {item.label ?? item}
             </option>
           ))}
-
         </select>
 
       </div>
-
-      {hint && (
-        <p className="mt-2 text-xs leading-5 text-gray-500">
-          💡 {hint}
-        </p>
-      )}
 
     </div>
   );
 }
 
 
-/*
-=============================================================
-DROPDOWN
-=============================================================
-*/
+/* =========================================================
+   SELECT
+========================================================= */
 
 export function CalculatorSelect({
   label,
   value,
   onChange,
-  options,
-  hint,
+  options = [],
+  required = false,
+  disabled = false,
+  className = "",
 }) {
   return (
-    <div>
+    <div className={className}>
 
-      <label className="block text-sm font-bold text-gray-700">
+      <label className="mb-2 block text-sm font-bold text-slate-700">
         {label}
+
+        {required && (
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        )}
       </label>
 
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 font-semibold text-gray-800 shadow-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+        disabled={disabled}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
       >
-
-        {options.map((option) => {
-
-          const item =
-            typeof option === "string"
-              ? {
-                  value: option,
-                  label: option,
-                }
-              : option;
-
-          return (
-            <option
-              key={item.value}
-              value={item.value}
-            >
-              {item.label}
-            </option>
-          );
-
-        })}
-
+        {options.map((item) => (
+          <option
+            key={item.value ?? item}
+            value={item.value ?? item}
+          >
+            {item.label ?? item}
+          </option>
+        ))}
       </select>
-
-      {hint && (
-        <p className="mt-2 text-xs leading-5 text-gray-500">
-          💡 {hint}
-        </p>
-      )}
 
     </div>
   );
 }
 
 
-/*
-=============================================================
-RESULT ROW
-=============================================================
-*/
+/* =========================================================
+   RESULT ROW
+========================================================= */
 
 export function CalculatorResultRow({
   label,
   value,
-  bold = false,
+  unit = "",
   highlight = false,
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-5 rounded-lg px-4 py-3 ${
-        highlight
-          ? "bg-blue-50"
-          : "bg-gray-50"
+      className={`flex items-center justify-between gap-4 border-b border-slate-100 py-4 ${
+        highlight ? "rounded-xl bg-blue-50 px-4" : ""
       }`}
     >
 
       <span
         className={
-          bold
-            ? "font-bold text-gray-900"
-            : "text-gray-600"
+          highlight
+            ? "font-extrabold text-blue-900"
+            : "font-medium text-slate-600"
         }
       >
         {label}
@@ -387,12 +324,18 @@ export function CalculatorResultRow({
 
       <span
         className={
-          bold
-            ? "text-right font-extrabold text-blue-800"
-            : "text-right font-semibold text-gray-800"
+          highlight
+            ? "text-lg font-extrabold text-blue-700"
+            : "font-bold text-slate-900"
         }
       >
         {value}
+
+        {unit && (
+          <span className="ml-1 text-xs text-slate-500">
+            {unit}
+          </span>
+        )}
       </span>
 
     </div>
@@ -400,104 +343,79 @@ export function CalculatorResultRow({
 }
 
 
-/*
-=============================================================
-RESULT SUMMARY CARD
-=============================================================
-*/
+/* =========================================================
+   SUMMARY
+========================================================= */
 
 export function CalculatorSummary({
-  title,
+  title = "Total",
   value,
-  unit,
-  description,
+  unit = "",
 }) {
   return (
-    <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+    <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
 
-      <p className="text-sm font-semibold text-blue-700">
-        {title}
-      </p>
+      <div className="flex items-center justify-between">
 
-      <div className="mt-2 flex items-baseline gap-2">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
+            {title}
+          </p>
 
-        <span className="text-4xl font-extrabold text-blue-900">
-          {value}
-        </span>
+          <p className="mt-1 text-2xl font-extrabold text-slate-900">
+            {value}
+          </p>
+        </div>
 
         {unit && (
-          <span className="text-lg font-bold text-blue-700">
+          <span className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-blue-700 shadow-sm">
             {unit}
           </span>
         )}
 
       </div>
 
-      {description && (
-        <p className="mt-2 text-sm text-blue-700">
-          {description}
-        </p>
-      )}
-
     </div>
   );
 }
 
 
-/*
-=============================================================
-FORMULA / HINT BOX
-=============================================================
-*/
+/* =========================================================
+   CALCULATION HINT
+========================================================= */
 
-export function CalculationHint({
-  title = "Calculation Method",
-  children,
-}) {
+export function CalculationHint({ children }) {
   return (
-    <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-5">
+    <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-800">
 
-      <div className="flex gap-3">
+      <span className="font-extrabold">
+        Tip:
+      </span>{" "}
 
-        <div className="text-xl">
-          💡
-        </div>
-
-        <div>
-
-          <p className="font-bold text-blue-900">
-            {title}
-          </p>
-
-          <div className="mt-2 text-sm leading-6 text-blue-800">
-            {children}
-          </div>
-
-        </div>
-
-      </div>
+      {children}
 
     </div>
   );
 }
 
 
-/*
-=============================================================
-BUTTON
-=============================================================
-*/
+/* =========================================================
+   CALCULATOR BUTTON
+========================================================= */
 
 export function CalculatorButton({
   children = "Calculate",
   onClick,
   type = "button",
+  disabled = false,
+  className = "",
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className="w-full rounded-xl bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-blue-800 hover:to-indigo-800 hover:shadow-xl active:scale-[0.99]"
+      disabled={disabled}
+      className={`w-full rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98] disabled:bg-slate-300 sm:w-auto ${className}`}
     >
       {children}
     </button>
@@ -505,54 +423,35 @@ export function CalculatorButton({
 }
 
 
-/*
-=============================================================
-COMMON LENGTH UNITS
-=============================================================
-*/
+/* =========================================================
+   UNIT LISTS
+========================================================= */
 
 export const LENGTH_UNITS = [
-  ["ft", "Feet"],
-  ["m", "Meter"],
-  ["cm", "Centimeter"],
-  ["mm", "Millimeter"],
-  ["inch", "Inch"],
+  { value: "mm", label: "mm" },
+  { value: "cm", label: "cm" },
+  { value: "m", label: "m" },
+  { value: "ft", label: "ft" },
+  { value: "inch", label: "inch" },
 ];
-
-
-/*
-=============================================================
-COMMON AREA UNITS
-=============================================================
-*/
 
 export const AREA_UNITS = [
-  ["sqft", "Sq. Feet"],
-  ["sqm", "Sq. Meter"],
-  ["sqyd", "Sq. Yard"],
+  { value: "sqft", label: "sq ft" },
+  { value: "sqm", label: "sq m" },
 ];
-
-
-/*
-=============================================================
-COMMON WEIGHT UNITS
-=============================================================
-*/
 
 export const WEIGHT_UNITS = [
-  ["kg", "Kilogram"],
-  ["ton", "Ton"],
-  ["gram", "Gram"],
+  { value: "kg", label: "kg" },
+  { value: "ton", label: "ton" },
 ];
 
-
-/*
-=============================================================
-COMMON QUANTITY UNITS
-=============================================================
-*/
-
 export const QUANTITY_UNITS = [
-  ["pcs", "Pieces"],
-  ["nos", "Numbers"],
+  { value: "nos", label: "Nos" },
+  { value: "pcs", label: "Pieces" },
+  { value: "bags", label: "Bags" },
+  { value: "kg", label: "Kg" },
+  { value: "litre", label: "Litre" },
+  { value: "sqft", label: "Sq Ft" },
+  { value: "sqm", label: "Sq M" },
+  { value: "rft", label: "Running Ft" },
 ];
