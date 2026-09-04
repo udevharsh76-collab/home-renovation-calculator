@@ -18,6 +18,8 @@ import ShoppingList from "./ShoppingList";
 import BOQ from "./BOQ";
 
 import FieldMode from "./FieldMode";
+import FieldMeasurement from "./FieldMeasurement";
+import FieldPhoto from "./FieldPhoto";
 
 
 function App() {
@@ -90,6 +92,8 @@ function App() {
       setScreen("labour");
       return;
     }
+
+    
   };
 
   const calculators = {
@@ -120,6 +124,14 @@ function App() {
     labour: "Labour",
   };
 
+  if (screen === "field-photo") {
+   return (
+     <FieldPhoto
+      onBack={() => setScreen("field")}
+    />
+  );
+}
+
   /*
  * ============================================================
  * FIELD MODE
@@ -130,7 +142,7 @@ if (screen === "field") {
   return (
     <FieldMode
       onMeasurement={() => {
-        alert("Measurement feature coming next.");
+        setScreen("field-measurement");
       }}
       onMaterial={() => {
         setScreen("shopping-list");
@@ -139,7 +151,7 @@ if (screen === "field") {
         setScreen("labour");
       }}
       onPhoto={() => {
-        alert("Site photo feature coming next.");
+        setScreen("field-photo");
       }}
       onCalculate={() => {
         if (selectedMaterials.length > 0) {
@@ -154,6 +166,20 @@ if (screen === "field") {
       onEstimate={() => {
         alert("Project estimate feature coming next.");
       }}
+    />
+  );
+}
+
+/*
+ * ============================================================
+ * FIELD MEASUREMENT
+ * ============================================================
+ */
+
+if (screen === "field-measurement") {
+  return (
+    <FieldMeasurement
+      onBack={() => setScreen("field")}
     />
   );
 }
