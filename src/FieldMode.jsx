@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { getRooms } from "./ProjectStorage";
 
 function FieldMode({
   onMeasurement,
@@ -8,300 +10,235 @@ function FieldMode({
   onCalculate,
   onBOQ,
   onEstimate,
+  selectedRoom,
+  onRoomSelect,
+  onManageRooms,
 }) {
-  return (
-    <div className="bg-slate-50 text-slate-900">
+  const [rooms, setRooms] = useState([]);
 
-      {/* MAIN CONTENT */}
+  useEffect(() => {
+    const savedRooms = getRooms();
+    setRooms(Array.isArray(savedRooms) ? savedRooms : []);
+  }, []);
+
+  const handleRoomChange = (event) => {
+    const roomId = event.target.value;
+
+    if (!roomId) {
+      onRoomSelect?.(null);
+      return;
+    }
+
+    const room = rooms.find((item) => String(item.id) === String(roomId));
+
+    if (room) {
+      onRoomSelect?.(room);
+    }
+  };
+
+  const fieldActions = [
+    {
+      title: "Measurements",
+      description: "Record room and site measurements",
+      icon: "📐",
+      action: onMeasurement,
+    },
+    {
+      title: "Materials",
+      description: "Calculate required materials",
+      icon: "🧱",
+      action: onMaterial,
+    },
+    {
+      title: "Labour",
+      description: "Add labour types and quantities",
+      icon: "👷",
+      action: onLabour,
+    },
+    {
+      title: "Site Photos",
+      description: "Capture before, during and after photos",
+      icon: "📷",
+      action: onPhoto,
+    },
+    {
+      title: "Calculate",
+      description: "Calculate project quantities and costs",
+      icon: "🧮",
+      action: onCalculate,
+    },
+    {
+      title: "BOQ",
+      description: "Prepare bill of quantities",
+      icon: "📋",
+      action: onBOQ,
+    },
+    {
+      title: "Estimate",
+      description: "View complete project estimate",
+      icon: "💰",
+      action: onEstimate,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <main className="mx-auto max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-7">
 
-        {/* PAGE INTRO */}
+        {/* HEADER */}
         <section className="mb-5">
-          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm sm:p-6">
+          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+            <h1 className="text-2xl font-extrabold text-slate-900">
+              Site Field Mode
+            </h1>
 
-            <div className="flex items-start gap-4">
+            <p className="mt-1 text-sm text-slate-500">
+              Quickly record measurements, materials, labour and
+              site information while working on a project.
+            </p>
+          </div>
+        </section>
 
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                🏗️
+        {/* ROOM SELECTION */}
+        <section className="mb-5">
+          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Current Room
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Select the room you are currently working in.
+                </p>
               </div>
 
-              <div className="min-w-0">
-                <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
-                  Site Field Mode
-                </h1>
+              <button
+                type="button"
+                onClick={() => onManageRooms?.()}
+                className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition hover:bg-blue-100"
+              >
+                Manage Rooms
+              </button>
+            </div>
 
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Quickly record measurements, materials, labour and
-                  site information while working on a project.
+            <select
+              value={selectedRoom?.id || ""}
+              onChange={handleRoomChange}
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="">
+                General Site
+              </option>
+
+              {rooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                </option>
+              ))}
+            </select>
+
+            {selectedRoom ? (
+              <div className="mt-3 rounded-xl bg-blue-50 px-4 py-3">
+                <p className="text-xs font-semibold text-blue-600">
+                  Working in
+                </p>
+
+                <p className="mt-1 text-sm font-bold text-blue-900">
+                  {selectedRoom.name}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-400">
+                No room selected. Information will be recorded under
+                General Site.
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* FIELD ACTIONS */}
+        <section>
+          <div className="mb-3">
+            <h2 className="text-lg font-extrabold text-slate-900">
+              Field Tools
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Select what you want to record or calculate.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+            {fieldActions.map((item) => (
+              <button
+                key={item.title}
+                type="button"
+                onClick={item.action}
+                disabled={!item.action}
+                className={`group rounded-2xl border border-blue-100 bg-white p-4 text-left shadow-sm transition ${
+                  item.action
+                    ? "hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
+                    : "cursor-not-allowed opacity-60"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-2xl">
+                    {item.icon}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-bold text-slate-900">
+                        {item.title}
+                      </h3>
+
+                      <span className="text-lg text-slate-300 transition group-hover:text-blue-500">
+                        →
+                      </span>
+                    </div>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      {item.description}
+                    </p>
+                  </div>
+
+                </div>
+              </button>
+            ))}
+
+          </div>
+        </section>
+
+        {/* CURRENT ROOM STATUS */}
+        <section className="mt-5">
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+
+            <div className="flex items-center gap-3">
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
+                📍
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-blue-600">
+                  Field Mode Active
+                </p>
+
+                <p className="text-sm font-bold text-blue-900">
+                  {selectedRoom?.name || "General Site"}
                 </p>
               </div>
 
             </div>
-          </div>
-        </section>
-
-        {/* PROJECT SUMMARY */}
-        <section className="mb-6">
-
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-extrabold text-slate-900">
-              Project Summary
-            </h2>
-
-            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-              Active Project
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-            {/* ESTIMATED COST */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-xl">
-                💰
-              </div>
-
-              <div className="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                Estimated Cost
-              </div>
-
-              <div className="mt-1 text-lg font-extrabold text-slate-900">
-                ₹0
-              </div>
-            </div>
-
-            {/* MATERIALS */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-xl">
-                🧱
-              </div>
-
-              <div className="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                Materials
-              </div>
-
-              <div className="mt-1 text-lg font-extrabold text-slate-900">
-                0
-              </div>
-            </div>
-
-            {/* LABOUR */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-xl">
-                👷
-              </div>
-
-              <div className="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                Labour
-              </div>
-
-              <div className="mt-1 text-lg font-extrabold text-slate-900">
-                ₹0
-              </div>
-            </div>
-
-            {/* OTHER */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-xl">
-                📦
-              </div>
-
-              <div className="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                Other
-              </div>
-
-              <div className="mt-1 text-lg font-extrabold text-slate-900">
-                ₹0
-              </div>
-            </div>
 
           </div>
         </section>
-
-        {/* QUICK ACTIONS */}
-        <section>
-
-          <div className="mb-3">
-            <h2 className="text-base font-extrabold text-slate-900">
-              Quick Actions
-            </h2>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Tap an action to continue.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-
-            {/* ADD MEASUREMENT */}
-            <button
-              type="button"
-              onClick={onMeasurement}
-              className="group min-h-[120px] rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                📐
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold text-slate-900">
-                Add Measurement
-              </div>
-
-              <div className="mt-1 text-xs text-slate-500">
-                Record site dimensions
-              </div>
-            </button>
-
-            {/* ADD MATERIAL */}
-            <button
-              type="button"
-              onClick={onMaterial}
-              className="group min-h-[120px] rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                🧱
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold text-slate-900">
-                Add Material
-              </div>
-
-              <div className="mt-1 text-xs text-slate-500">
-                Add materials to project
-              </div>
-            </button>
-
-            {/* ADD LABOUR */}
-            <button
-              type="button"
-              onClick={onLabour}
-              className="group min-h-[120px] rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                👷
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold text-slate-900">
-                Add Labour
-              </div>
-
-              <div className="mt-1 text-xs text-slate-500">
-                Record labour costs
-              </div>
-            </button>
-
-            {/* TAKE PHOTO */}
-            <button
-              type="button"
-              onClick={onPhoto}
-              className="group min-h-[120px] rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                📷
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold text-slate-900">
-                Take Photo
-              </div>
-
-              <div className="mt-1 text-xs text-slate-500">
-                Capture site photos
-              </div>
-            </button>
-
-            {/* CALCULATE */}
-            <button
-              type="button"
-              onClick={onCalculate}
-              className="group min-h-[120px] rounded-2xl bg-blue-800 p-5 text-left text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-900 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-2xl">
-                🧮
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold">
-                Calculate
-              </div>
-
-              <div className="mt-1 text-xs text-blue-100">
-                Calculate material quantities
-              </div>
-            </button>
-
-            {/* BOQ */}
-            <button
-              type="button"
-              onClick={onBOQ}
-              className="group min-h-[120px] rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-                📋
-              </div>
-
-              <div className="mt-4 text-sm font-extrabold text-slate-900">
-                BOQ
-              </div>
-
-              <div className="mt-1 text-xs text-slate-500">
-                View quantity summary
-              </div>
-            </button>
-
-            {/* ESTIMATE */}
-            <button
-              type="button"
-              onClick={onEstimate}
-              className="group col-span-2 min-h-[120px] rounded-2xl border border-blue-200 bg-blue-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-100 hover:shadow-md active:scale-[0.98] sm:col-span-3"
-            >
-              <div className="flex items-center gap-4">
-
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
-                  💰
-                </div>
-
-                <div>
-                  <div className="text-sm font-extrabold text-slate-900">
-                    Estimate
-                  </div>
-
-                  <div className="mt-1 text-xs text-slate-500">
-                    Generate the complete project estimate
-                  </div>
-                </div>
-
-              </div>
-            </button>
-
-          </div>
-        </section>
-
-        {/* INFORMATION */}
-        <div className="mt-6 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-
-          <div className="flex items-start gap-3">
-
-            <div className="text-lg">
-              ℹ️
-            </div>
-
-            <div>
-              <div className="text-sm font-bold text-slate-800">
-                Designed for site work
-              </div>
-
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Field Mode is optimized for phones and tablets so
-                measurements, materials, labour and photos can be
-                recorded quickly while working at the site.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
 
       </main>
-
     </div>
   );
 }

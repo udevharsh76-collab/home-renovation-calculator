@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { saveProjectMeasurements } from "./ProjectStorage";
+import { getRooms, saveProjectMeasurements } from "./ProjectStorage";
 
 const STORAGE_KEY = "renovatecalc_field_measurements";
 
@@ -74,9 +74,36 @@ function FieldMeasurement({ onMeasurementsChange }) {
 
   const [form, setForm] = useState(initialForm);
 
+  const [rooms, setRooms] = useState(() => {
+    try {
+      return getRooms();
+    } catch {
+      return [];
+    }
+  });
+
+  const [selectedRoomId, setSelectedRoomId] = useState("");
+
   const [showOpenings, setShowOpenings] = useState(false);
 
   const [error, setError] = useState("");
+
+  /* =========================================================
+     LOAD MANAGED ROOMS
+  ========================================================= */
+
+  useEffect(() => {
+    try {
+      setRooms(getRooms());
+    } catch {
+      setRooms([]);
+    }
+  }, []);
+
+  const selectedRoom = useMemo(
+    () => rooms.find((room) => room.id === selectedRoomId) || null,
+    [rooms, selectedRoomId]
+  );
 
   /* =========================================================
      SAVE MEASUREMENTS
@@ -421,6 +448,10 @@ function FieldMeasurement({ onMeasurementsChange }) {
     const newMeasurement = {
       id: Date.now(),
 
+      roomId: selectedRoom?.id || null,
+      roomName: selectedRoom?.name || null,
+      roomType: selectedRoom?.type || null,
+
       name: form.name.trim(),
 
       type: form.type,
@@ -494,7 +525,10 @@ function FieldMeasurement({ onMeasurementsChange }) {
        RESET FORM
     ======================================================= */
 
-    setForm(initialForm);
+    setForm({
+      ...initialForm,
+      name: selectedRoom?.name || "",
+    });
 
     setShowOpenings(false);
   };
@@ -647,6 +681,66 @@ function FieldMeasurement({ onMeasurementsChange }) {
             {/* =================================================
                 BASIC DETAILS
             ================================================= */}
+
+            <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-blue-700">
+                    Room Management Link
+                  </p>
+                  <h3 className="mt-1 text-base font-bold text-slate-900">
+                    Current Room
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    Select the managed room this site measurement belongs to.
+                  </p>
+                </div>
+
+                <div className="w-full sm:max-w-sm">
+                  <select
+                    value={selectedRoomId}
+                    onChange={(event) => {
+                      const roomId = event.target.value;
+                      setSelectedRoomId(roomId);
+
+                      const room = rooms.find((item) => item.id === roomId);
+                      if (room) {
+                        setForm((previous) => ({
+                          ...previous,
+                          name: room.name || previous.name,
+                        }));
+                      }
+
+                      setError("");
+                    }}
+                    className="w-full rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  >
+                    <option value="">No managed room selected</option>
+                    {rooms.map((room) => (
+                      <option key={room.id} value={room.id}>
+                        {room.name}{room.type ? ` — ${room.type}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {rooms.length === 0 ? (
+                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
+                  No managed rooms are available yet. You can still save this measurement, but it will not be linked to a room.
+                </p>
+              ) : selectedRoom ? (
+                <div className="mt-3 rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm">
+                  <span className="font-semibold text-slate-500">Linked to:</span>{" "}
+                  <span className="font-bold text-blue-800">{selectedRoom.name}</span>
+                  {selectedRoom.type ? (
+                    <span className="ml-2 text-xs font-semibold text-slate-500">
+                      {selectedRoom.type}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
 
@@ -1374,6 +1468,12 @@ function FieldMeasurement({ onMeasurementsChange }) {
                             <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold capitalize text-blue-700">
                               {measurement.type}
                             </span>
+
+                            {measurement.roomName && (
+                              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                                Room: {measurement.roomName}
+                              </span>
+                            )}
 
                           </div>
 

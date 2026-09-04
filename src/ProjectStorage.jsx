@@ -14,38 +14,72 @@ export const createDefaultProject = () => ({
       .slice(-6)}`,
   },
 
-  /* Field measurements */
+  /* =======================================================
+     ROOMS
+  ======================================================= */
+
+  rooms: [],
+
+  /* =======================================================
+     FIELD MEASUREMENTS
+  ======================================================= */
+
   measurements: {},
 
-  /* Calculated material data */
+  /* =======================================================
+     CALCULATED MATERIAL DATA
+  ======================================================= */
+
   materials: {},
 
-  /* Working shopping list */
+  /* =======================================================
+     WORKING SHOPPING LIST
+  ======================================================= */
+
   shoppingList: [],
 
-  /* Final / committed BOQ items */
+  /* =======================================================
+     FINAL / COMMITTED BOQ ITEMS
+  ======================================================= */
+
   boqItems: [],
 
-  /* Labour */
+  /* =======================================================
+     LABOUR
+  ======================================================= */
+
   labour: {
     items: [],
     total: 0,
   },
 
-  /* Estimate */
+  /* =======================================================
+     SITE PHOTOS
+  ======================================================= */
+
+  photos: [],
+
+  /* =======================================================
+     ESTIMATE
+  ======================================================= */
+
   estimate: {
     transport: 0,
     otherCharges: 0,
     notes: "",
   },
 
-  /* Project metadata */
+  /* =======================================================
+     PROJECT METADATA
+  ======================================================= */
+
   meta: {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     status: "DRAFT",
   },
 });
+
 
 /* =========================================================
    LOAD PROJECT
@@ -63,7 +97,8 @@ export const getProject = () => {
 
     const parsed = JSON.parse(saved);
 
-    const defaultProject = createDefaultProject();
+    const defaultProject =
+      createDefaultProject();
 
     return {
       ...defaultProject,
@@ -77,6 +112,15 @@ export const getProject = () => {
         ...defaultProject.project,
         ...(parsed.project || {}),
       },
+
+      /* -----------------------------------------------------
+         ROOMS
+      ----------------------------------------------------- */
+
+      rooms:
+        Array.isArray(parsed.rooms)
+          ? parsed.rooms
+          : [],
 
       /* -----------------------------------------------------
          MEASUREMENTS
@@ -97,7 +141,9 @@ export const getProject = () => {
       ----------------------------------------------------- */
 
       shoppingList:
-        Array.isArray(parsed.shoppingList)
+        Array.isArray(
+          parsed.shoppingList
+        )
           ? parsed.shoppingList
           : [],
 
@@ -106,7 +152,9 @@ export const getProject = () => {
       ----------------------------------------------------- */
 
       boqItems:
-        Array.isArray(parsed.boqItems)
+        Array.isArray(
+          parsed.boqItems
+        )
           ? parsed.boqItems
           : [],
 
@@ -119,13 +167,26 @@ export const getProject = () => {
         ...(parsed.labour || {}),
 
         items:
-          Array.isArray(parsed.labour?.items)
+          Array.isArray(
+            parsed.labour?.items
+          )
             ? parsed.labour.items
             : [],
 
         total:
-          Number(parsed.labour?.total) || 0,
+          Number(
+            parsed.labour?.total
+          ) || 0,
       },
+
+      /* -----------------------------------------------------
+         SITE PHOTOS
+      ----------------------------------------------------- */
+
+      photos:
+        Array.isArray(parsed.photos)
+          ? parsed.photos
+          : [],
 
       /* -----------------------------------------------------
          ESTIMATE
@@ -136,10 +197,14 @@ export const getProject = () => {
         ...(parsed.estimate || {}),
 
         transport:
-          Number(parsed.estimate?.transport) || 0,
+          Number(
+            parsed.estimate?.transport
+          ) || 0,
 
         otherCharges:
-          Number(parsed.estimate?.otherCharges) || 0,
+          Number(
+            parsed.estimate?.otherCharges
+          ) || 0,
 
         notes:
           parsed.estimate?.notes || "",
@@ -164,49 +229,66 @@ export const getProject = () => {
   }
 };
 
+
 /* =========================================================
    SAVE COMPLETE PROJECT
    ========================================================= */
 
-export const saveProject = (project) => {
+export const saveProject = (
+  project
+) => {
   const updatedProject = {
     ...project,
 
     meta: {
       ...(project.meta || {}),
-      updatedAt: new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString(),
     },
   };
 
   localStorage.setItem(
     PROJECT_STORAGE_KEY,
-    JSON.stringify(updatedProject)
+    JSON.stringify(
+      updatedProject
+    )
   );
 
   return updatedProject;
 };
 
+
 /* =========================================================
    UPDATE PROJECT
    ========================================================= */
 
-export const updateProject = (updates) => {
-  const currentProject = getProject();
+export const updateProject = (
+  updates
+) => {
+  const currentProject =
+    getProject();
 
   const updatedProject = {
     ...currentProject,
     ...updates,
   };
 
-  return saveProject(updatedProject);
+  return saveProject(
+    updatedProject
+  );
 };
+
 
 /* =========================================================
    SAVE PROJECT INFORMATION
    ========================================================= */
 
-export const saveProjectInfo = (projectInfo) => {
-  const project = getProject();
+export const saveProjectInfo = (
+  projectInfo
+) => {
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
@@ -218,6 +300,182 @@ export const saveProjectInfo = (projectInfo) => {
   });
 };
 
+
+/* =========================================================
+   =========================================================
+   ROOMS
+   =========================================================
+   ========================================================= */
+
+
+/* =========================================================
+   GET ROOMS
+   ========================================================= */
+
+export const getRooms = () => {
+  const project =
+    getProject();
+
+  return Array.isArray(
+    project.rooms
+  )
+    ? project.rooms
+    : [];
+};
+
+
+/* =========================================================
+   SAVE / ADD ROOM
+   ========================================================= */
+
+export const saveRoom = (
+  roomData
+) => {
+  const project =
+    getProject();
+
+  const rooms =
+    Array.isArray(
+      project.rooms
+    )
+      ? project.rooms
+      : [];
+
+  const now =
+    new Date().toISOString();
+
+  const room = {
+    ...roomData,
+
+    id:
+      roomData?.id ||
+      `ROOM-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 7)}`,
+
+    name:
+      String(
+        roomData?.name || ""
+      ).trim(),
+
+    type:
+      roomData?.type ||
+      "Other",
+
+    createdAt:
+      roomData?.createdAt ||
+      now,
+
+    updatedAt:
+      now,
+  };
+
+  const existingIndex =
+    rooms.findIndex(
+      (existingRoom) =>
+        existingRoom.id ===
+        room.id
+    );
+
+  let updatedRooms;
+
+  if (
+    existingIndex >= 0
+  ) {
+    updatedRooms =
+      rooms.map(
+        (existingRoom) =>
+          existingRoom.id ===
+          room.id
+            ? room
+            : existingRoom
+      );
+  } else {
+    updatedRooms = [
+      ...rooms,
+      room,
+    ];
+  }
+
+  return saveProject({
+    ...project,
+    rooms: updatedRooms,
+  });
+};
+
+
+/* =========================================================
+   UPDATE ROOM
+   ========================================================= */
+
+export const updateRoom = (
+  roomId,
+  updates
+) => {
+  const project =
+    getProject();
+
+  const rooms =
+    Array.isArray(
+      project.rooms
+    )
+      ? project.rooms
+      : [];
+
+  const updatedRooms =
+    rooms.map(
+      (room) =>
+        room.id === roomId
+          ? {
+              ...room,
+              ...updates,
+
+              id:
+                room.id,
+
+              updatedAt:
+                new Date().toISOString(),
+            }
+          : room
+    );
+
+  return saveProject({
+    ...project,
+    rooms: updatedRooms,
+  });
+};
+
+
+/* =========================================================
+   REMOVE ROOM
+   ========================================================= */
+
+export const removeRoom = (
+  roomId
+) => {
+  const project =
+    getProject();
+
+  const rooms =
+    Array.isArray(
+      project.rooms
+    )
+      ? project.rooms
+      : [];
+
+  const updatedRooms =
+    rooms.filter(
+      (room) =>
+        room.id !== roomId
+    );
+
+  return saveProject({
+    ...project,
+    rooms: updatedRooms,
+  });
+};
+
+
 /* =========================================================
    SAVE MEASUREMENTS
    ========================================================= */
@@ -225,7 +483,8 @@ export const saveProjectInfo = (projectInfo) => {
 export const saveProjectMeasurements = (
   measurements
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
@@ -235,6 +494,7 @@ export const saveProjectMeasurements = (
   });
 };
 
+
 /* =========================================================
    SAVE MATERIAL TO PROJECT
    ========================================================= */
@@ -243,7 +503,8 @@ export const saveMaterialToProject = (
   materialKey,
   materialData
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
@@ -261,6 +522,7 @@ export const saveMaterialToProject = (
   });
 };
 
+
 /* =========================================================
    REMOVE MATERIAL FROM PROJECT
    ========================================================= */
@@ -268,19 +530,23 @@ export const saveMaterialToProject = (
 export const removeMaterialFromProject = (
   materialKey
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   const materials = {
     ...(project.materials || {}),
   };
 
-  delete materials[materialKey];
+  delete materials[
+    materialKey
+  ];
 
   return saveProject({
     ...project,
     materials,
   });
 };
+
 
 /* =========================================================
    SAVE SHOPPING LIST
@@ -289,27 +555,43 @@ export const removeMaterialFromProject = (
 export const saveProjectShoppingList = (
   shoppingList
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
 
     shoppingList:
-      Array.isArray(shoppingList)
+      Array.isArray(
+        shoppingList
+      )
         ? shoppingList
         : [],
   });
 };
 
+
+/* =========================================================
+   =========================================================
+   BOQ
+   =========================================================
+   ========================================================= */
+
+
 /* =========================================================
    ADD / UPDATE BOQ ITEM
    ========================================================= */
 
-export const saveBOQItem = (item) => {
-  const project = getProject();
+export const saveBOQItem = (
+  item
+) => {
+  const project =
+    getProject();
 
   const existingItems =
-    Array.isArray(project.boqItems)
+    Array.isArray(
+      project.boqItems
+    )
       ? project.boqItems
       : [];
 
@@ -325,49 +607,61 @@ export const saveBOQItem = (item) => {
       new Date().toISOString(),
   };
 
-  const itemExists = existingItems.some(
-    (existing) =>
-      existing.id === newItem.id
-  );
+  const itemExists =
+    existingItems.some(
+      (existing) =>
+        existing.id ===
+        newItem.id
+    );
 
-  const updatedItems = itemExists
-    ? existingItems.map((existing) =>
-        existing.id === newItem.id
-          ? newItem
-          : existing
-      )
-    : [
-        ...existingItems,
-        newItem,
-      ];
+  const updatedItems =
+    itemExists
+      ? existingItems.map(
+          (existing) =>
+            existing.id ===
+            newItem.id
+              ? newItem
+              : existing
+        )
+      : [
+          ...existingItems,
+          newItem,
+        ];
 
   return saveProject({
     ...project,
 
-    boqItems: updatedItems,
+    boqItems:
+      updatedItems,
   });
 };
+
 
 /* =========================================================
    SAVE MULTIPLE BOQ ITEMS
    ========================================================= */
 
-export const saveBOQItems = (items) => {
-  const project = getProject();
+export const saveBOQItems = (
+  items
+) => {
+  const project =
+    getProject();
 
   const normalizedItems =
     Array.isArray(items)
-      ? items.map((item, index) => ({
-          ...item,
+      ? items.map(
+          (item, index) => ({
+            ...item,
 
-          id:
-            item?.id ||
-            `BOQ-${Date.now()}-${index}`,
+            id:
+              item?.id ||
+              `BOQ-${Date.now()}-${index}`,
 
-          savedAt:
-            item?.savedAt ||
-            new Date().toISOString(),
-        }))
+            savedAt:
+              item?.savedAt ||
+              new Date().toISOString(),
+          })
+        )
       : [];
 
   return saveProject({
@@ -378,60 +672,65 @@ export const saveBOQItems = (items) => {
   });
 };
 
+
 /* =========================================================
    SAVE SHOPPING LIST ITEMS TO BOQ
    ========================================================= */
 
-export const saveShoppingListToBOQ = () => {
-  const project = getProject();
+export const saveShoppingListToBOQ =
+  () => {
+    const project =
+      getProject();
 
-  const shoppingList =
-    Array.isArray(project.shoppingList)
-      ? project.shoppingList
-      : [];
+    const shoppingList =
+      Array.isArray(
+        project.shoppingList
+      )
+        ? project.shoppingList
+        : [];
 
-  const existingBOQ =
-    Array.isArray(project.boqItems)
-      ? project.boqItems
-      : [];
+    const existingBOQ =
+      Array.isArray(
+        project.boqItems
+      )
+        ? project.boqItems
+        : [];
 
-  /*
-     Keep existing BOQ items and add shopping-list
-     items that are not already present.
-  */
+    const newBOQItems =
+      shoppingList.map(
+        (item, index) => ({
+          ...item,
 
-  const newBOQItems =
-    shoppingList.map(
-      (item, index) => ({
-        ...item,
+          id:
+            item?.id ||
+            `BOQ-${Date.now()}-${index}`,
 
-        id:
-          item?.id ||
-          `BOQ-${Date.now()}-${index}`,
+          savedAt:
+            new Date().toISOString(),
+        })
+      );
 
-        savedAt:
-          new Date().toISOString(),
-      })
-    );
+    const mergedBOQ = [
+      ...existingBOQ,
 
-  const mergedBOQ = [
-    ...existingBOQ,
-    ...newBOQItems.filter(
-      (newItem) =>
-        !existingBOQ.some(
-          (existingItem) =>
-            existingItem.id ===
-            newItem.id
-        )
-    ),
-  ];
+      ...newBOQItems.filter(
+        (newItem) =>
+          !existingBOQ.some(
+            (existingItem) =>
+              existingItem.id ===
+              newItem.id
+          )
+      ),
+    ];
 
-  return saveProject({
-    ...project,
+    return saveProject({
+      ...project,
 
-    boqItems: mergedBOQ,
-  });
-};
+      boqItems:
+        mergedBOQ,
+    });
+  };
+
 
 /* =========================================================
    REMOVE BOQ ITEM
@@ -440,10 +739,13 @@ export const saveShoppingListToBOQ = () => {
 export const removeBOQItem = (
   itemId
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   const boqItems =
-    Array.isArray(project.boqItems)
+    Array.isArray(
+      project.boqItems
+    )
       ? project.boqItems
       : [];
 
@@ -458,12 +760,14 @@ export const removeBOQItem = (
   });
 };
 
+
 /* =========================================================
    CLEAR ALL BOQ ITEMS
    ========================================================= */
 
 export const clearBOQItems = () => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
@@ -472,12 +776,14 @@ export const clearBOQItems = () => {
   });
 };
 
+
 /* =========================================================
    GET BOQ ITEMS
    ========================================================= */
 
 export const getBOQItems = () => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return Array.isArray(
     project.boqItems
@@ -485,6 +791,14 @@ export const getBOQItems = () => {
     ? project.boqItems
     : [];
 };
+
+
+/* =========================================================
+   =========================================================
+   LABOUR
+   =========================================================
+   ========================================================= */
+
 
 /* =========================================================
    SAVE LABOUR
@@ -494,14 +808,17 @@ export const saveProjectLabour = (
   labourItems,
   total
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
 
     labour: {
       items:
-        Array.isArray(labourItems)
+        Array.isArray(
+          labourItems
+        )
           ? labourItems
           : [],
 
@@ -511,6 +828,7 @@ export const saveProjectLabour = (
   });
 };
 
+
 /* =========================================================
    SAVE LABOUR ITEM
    ========================================================= */
@@ -518,7 +836,8 @@ export const saveProjectLabour = (
 export const saveLabourItem = (
   labourItem
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   const existingItems =
     Array.isArray(
@@ -542,14 +861,16 @@ export const saveLabourItem = (
   const itemExists =
     existingItems.some(
       (item) =>
-        item.id === newItem.id
+        item.id ===
+        newItem.id
     );
 
   const updatedItems =
     itemExists
       ? existingItems.map(
           (item) =>
-            item.id === newItem.id
+            item.id ===
+            newItem.id
               ? newItem
               : item
         )
@@ -562,8 +883,12 @@ export const saveLabourItem = (
     updatedItems.reduce(
       (sum, item) =>
         sum +
-        (Number(item.amount) ||
-          Number(item.total) ||
+        (Number(
+          item.amount
+        ) ||
+          Number(
+            item.total
+          ) ||
           0),
       0
     );
@@ -572,11 +897,14 @@ export const saveLabourItem = (
     ...project,
 
     labour: {
-      items: updatedItems,
+      items:
+        updatedItems,
+
       total,
     },
   });
 };
+
 
 /* =========================================================
    REMOVE LABOUR ITEM
@@ -585,7 +913,8 @@ export const saveLabourItem = (
 export const removeLabourItem = (
   itemId
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   const existingItems =
     Array.isArray(
@@ -604,8 +933,12 @@ export const removeLabourItem = (
     updatedItems.reduce(
       (sum, item) =>
         sum +
-        (Number(item.amount) ||
-          Number(item.total) ||
+        (Number(
+          item.amount
+        ) ||
+          Number(
+            item.total
+          ) ||
           0),
       0
     );
@@ -614,11 +947,173 @@ export const removeLabourItem = (
     ...project,
 
     labour: {
-      items: updatedItems,
+      items:
+        updatedItems,
+
       total,
     },
   });
 };
+
+
+/* =========================================================
+   =========================================================
+   SITE PHOTOS
+   =========================================================
+   ========================================================= */
+
+
+/* =========================================================
+   GET PROJECT PHOTOS
+   ========================================================= */
+
+export const getProjectPhotos = () => {
+  const project =
+    getProject();
+
+  return Array.isArray(
+    project.photos
+  )
+    ? project.photos
+    : [];
+};
+
+
+/* =========================================================
+   SAVE PROJECT PHOTO
+   ========================================================= */
+
+export const saveProjectPhoto = (
+  photoData
+) => {
+  const project =
+    getProject();
+
+  const photos =
+    Array.isArray(
+      project.photos
+    )
+      ? project.photos
+      : [];
+
+  const newPhoto = {
+    ...photoData,
+
+    id:
+      photoData?.id ||
+      `PHOTO-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 7)}`,
+
+    title:
+      String(
+        photoData?.title ||
+          "Site Photo"
+      ).trim(),
+
+    note:
+      String(
+        photoData?.note || ""
+      ).trim(),
+
+    createdAt:
+      photoData?.createdAt ||
+      new Date().toISOString(),
+
+    savedAt:
+      new Date().toISOString(),
+  };
+
+  const existingIndex =
+    photos.findIndex(
+      (photo) =>
+        photo.id ===
+        newPhoto.id
+    );
+
+  let updatedPhotos;
+
+  if (
+    existingIndex >= 0
+  ) {
+    updatedPhotos =
+      photos.map(
+        (photo) =>
+          photo.id ===
+          newPhoto.id
+            ? newPhoto
+            : photo
+      );
+  } else {
+    updatedPhotos = [
+      newPhoto,
+      ...photos,
+    ];
+  }
+
+  return saveProject({
+    ...project,
+
+    photos:
+      updatedPhotos,
+  });
+};
+
+
+/* =========================================================
+   REMOVE PROJECT PHOTO
+   ========================================================= */
+
+export const removeProjectPhoto = (
+  photoId
+) => {
+  const project =
+    getProject();
+
+  const photos =
+    Array.isArray(
+      project.photos
+    )
+      ? project.photos
+      : [];
+
+  const updatedPhotos =
+    photos.filter(
+      (photo) =>
+        photo.id !== photoId
+    );
+
+  return saveProject({
+    ...project,
+
+    photos:
+      updatedPhotos,
+  });
+};
+
+
+/* =========================================================
+   CLEAR PROJECT PHOTOS
+   ========================================================= */
+
+export const clearProjectPhotos = () => {
+  const project =
+    getProject();
+
+  return saveProject({
+    ...project,
+
+    photos: [],
+  });
+};
+
+
+/* =========================================================
+   =========================================================
+   ESTIMATE
+   =========================================================
+   ========================================================= */
+
 
 /* =========================================================
    SAVE ESTIMATE DETAILS
@@ -627,7 +1122,8 @@ export const removeLabourItem = (
 export const saveProjectEstimate = (
   estimate
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
@@ -653,64 +1149,69 @@ export const saveProjectEstimate = (
   });
 };
 
+
 /* =========================================================
    CALCULATE PROJECT TOTAL
    ========================================================= */
 
-export const calculateProjectTotal = () => {
-  const project = getProject();
+export const calculateProjectTotal =
+  () => {
+    const project =
+      getProject();
 
-  const boqItems =
-    Array.isArray(
-      project.boqItems
-    )
-      ? project.boqItems
-      : [];
+    const boqItems =
+      Array.isArray(
+        project.boqItems
+      )
+        ? project.boqItems
+        : [];
 
-  const materialTotal =
-    boqItems.reduce(
-      (total, item) => {
-        const quantity =
-          Number(
-            item.quantity
-          ) || 0;
+    const materialTotal =
+      boqItems.reduce(
+        (total, item) => {
+          const quantity =
+            Number(
+              item.quantity
+            ) || 0;
 
-        const rate =
-          Number(
-            item.price
-          ) || 0;
+          const rate =
+            Number(
+              item.price
+            ) || 0;
 
-        return (
-          total +
-          quantity * rate
-        );
-      },
-      0
+          return (
+            total +
+            quantity * rate
+          );
+        },
+        0
+      );
+
+    const labourTotal =
+      Number(
+        project.labour?.total
+      ) || 0;
+
+    const transport =
+      Number(
+        project.estimate
+          ?.transport
+      ) || 0;
+
+    const otherCharges =
+      Number(
+        project.estimate
+          ?.otherCharges
+      ) || 0;
+
+    return (
+      materialTotal +
+      labourTotal +
+      transport +
+      otherCharges
     );
+  };
 
-  const labourTotal =
-    Number(
-      project.labour?.total
-    ) || 0;
-
-  const transport =
-    Number(
-      project.estimate?.transport
-    ) || 0;
-
-  const otherCharges =
-    Number(
-      project.estimate
-        ?.otherCharges
-    ) || 0;
-
-  return (
-    materialTotal +
-    labourTotal +
-    transport +
-    otherCharges
-  );
-};
 
 /* =========================================================
    SAVE FINAL ESTIMATE
@@ -719,7 +1220,8 @@ export const calculateProjectTotal = () => {
 export const saveFinalEstimate = (
   estimateData = {}
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   const grandTotal =
     calculateProjectTotal();
@@ -740,7 +1242,8 @@ export const saveFinalEstimate = (
 
       otherCharges:
         Number(
-          estimateData.otherCharges ??
+          estimateData
+            .otherCharges ??
             project.estimate
               ?.otherCharges
         ) || 0,
@@ -753,10 +1256,13 @@ export const saveFinalEstimate = (
 
     meta: {
       ...(project.meta || {}),
-      status: "SAVED",
+
+      status:
+        "SAVED",
     },
   });
 };
+
 
 /* =========================================================
    SET PROJECT STATUS
@@ -765,17 +1271,20 @@ export const saveFinalEstimate = (
 export const setProjectStatus = (
   status
 ) => {
-  const project = getProject();
+  const project =
+    getProject();
 
   return saveProject({
     ...project,
 
     meta: {
       ...(project.meta || {}),
+
       status,
     },
   });
 };
+
 
 /* =========================================================
    CLEAR PROJECT
@@ -788,6 +1297,7 @@ export const clearProject = () => {
 
   return createDefaultProject();
 };
+
 
 /* =========================================================
    EXPORT STORAGE KEY
