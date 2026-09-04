@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import MaterialDatabase from "./MaterialDatabase";
 
@@ -23,7 +23,13 @@ import FieldPhoto from "./FieldPhoto";
 
 
 function App() {
-  const [screen, setScreen] = useState("database");
+  const [screen, setScreen] = useState(() => {
+  return localStorage.getItem("renovatecalc_current_screen") || "database";
+});
+
+useEffect(() => {
+  localStorage.setItem("renovatecalc_current_screen", screen);
+}, [screen]);
 
   const [selectedMaterials, setSelectedMaterials] = useState([]);
 
