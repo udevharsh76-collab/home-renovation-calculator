@@ -17,6 +17,9 @@ import LabourCalculation from "./LabourCalculation";
 import ShoppingList from "./ShoppingList";
 import BOQ from "./BOQ";
 
+import FieldMode from "./FieldMode";
+
+
 function App() {
   const [screen, setScreen] = useState("database");
 
@@ -116,6 +119,44 @@ function App() {
     plumbing: "Plumbing",
     labour: "Labour",
   };
+
+  /*
+ * ============================================================
+ * FIELD MODE
+ * ============================================================
+ */
+
+if (screen === "field") {
+  return (
+    <FieldMode
+      onMeasurement={() => {
+        alert("Measurement feature coming next.");
+      }}
+      onMaterial={() => {
+        setScreen("shopping-list");
+      }}
+      onLabour={() => {
+        setScreen("labour");
+      }}
+      onPhoto={() => {
+        alert("Site photo feature coming next.");
+      }}
+      onCalculate={() => {
+        if (selectedMaterials.length > 0) {
+          handleCalculate();
+        } else {
+          alert("Please select materials first.");
+        }
+      }}
+      onBOQ={() => {
+        setScreen("boq");
+      }}
+      onEstimate={() => {
+        alert("Project estimate feature coming next.");
+      }}
+    />
+  );
+}
 
   /*
    * ============================================================
@@ -225,16 +266,20 @@ function App() {
    * ============================================================
    */
 
-  return (
-    <MaterialDatabase
-      onCalculate={handleCalculate}
-      selectedMaterials={selectedMaterials}
-      onSelectedMaterialsChange={setSelectedMaterials}
-      onShoppingList={() =>
-        setScreen("shopping-list")
-      }
-    />
-  );
+ return (
+  <MaterialDatabase
+    onCalculate={handleCalculate}
+    selectedMaterials={selectedMaterials}
+    onSelectedMaterialsChange={setSelectedMaterials}
+    onShoppingList={() =>
+      setScreen("shopping-list")
+    }
+    onFieldMode={() =>
+      setScreen("field")
+    }
+  />
+);
+
 }
 
 export default App;

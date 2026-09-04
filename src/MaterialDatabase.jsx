@@ -4,6 +4,7 @@ function MaterialDatabase({
   onCalculate,
   onShoppingList,
   onBOQ,
+  onFieldMode,
   selectedMaterials,
   onSelectedMaterialsChange,
 })
@@ -75,6 +76,14 @@ function MaterialDatabase({
               className="w-full rounded-xl bg-green-600 px-6 py-4 text-lg font-bold text-white shadow-md transition hover:bg-green-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-green-200"
             >
               🛒 Open Renovation Shopping List
+            </button>
+
+            <button
+              type="button"
+              onClick={onFieldMode}
+              className="mt-3 w-full rounded-xl bg-slate-900 px-6 py-4 text-lg font-bold text-white shadow-md transition hover:bg-slate-950 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-300"
+            >
+              📱 Open Field Mode
             </button>
 
 
