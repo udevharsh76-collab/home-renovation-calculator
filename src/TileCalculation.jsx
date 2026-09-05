@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export default function TileCalculation() {
+export default function TileCalculation({ onResult })  {
   // =========================
   // COMMON
   // =========================
@@ -270,6 +270,122 @@ export default function TileCalculation() {
     adhesiveCoverage,
     adhesiveWastage,
     adhesiveRate,
+  ]);
+
+
+  // =========================
+  // SEND RESULT TO APP
+  // =========================
+
+  useEffect(() => {
+    if (typeof onResult !== "function") {
+      return;
+    }
+
+    const hasValidCalculation =
+      calculation.netFloorArea > 0 &&
+      calculation.tileAreaSqFt > 0 &&
+      calculation.finalTiles > 0 &&
+      Number(rate) > 0;
+
+    if (!hasValidCalculation) {
+      onResult(null);
+      return;
+    }
+
+    const isBoxRate = rateMode === "box";
+
+    onResult({
+      material: "Tiles",
+      item: "Tiles",
+      category: "Materials",
+
+      specification: isBoxRate
+        ? `${calculation.boxesRequired} boxes required`
+        : `${calculation.tilesPurchased} tiles required`,
+
+      description:
+        `Floor area ${calculation.netFloorArea.toFixed(2)} sq ft, ` +
+        `tile size ${tileLength || 0} × ${tileWidth || 0} ${tileLengthUnit}`,
+
+      quantity: isBoxRate
+        ? calculation.boxesRequired
+        : calculation.tilesPurchased,
+
+      finalQuantity: isBoxRate
+        ? calculation.boxesRequired
+        : calculation.tilesPurchased,
+
+      unit: isBoxRate
+        ? "boxes"
+        : "tiles",
+
+      rate: Number(rate) || 0,
+
+      amount: calculation.tileMaterialCost,
+
+      cost: calculation.tileMaterialCost,
+
+      wastage: Number(wastage) || 0,
+
+      source: "Tile Calculator",
+
+      calculationDetails: {
+        grossFloorArea:
+          calculation.grossFloorArea,
+
+        openingsSqFt:
+          calculation.openingsSqFt,
+
+        netFloorArea:
+          calculation.netFloorArea,
+
+        tileAreaSqFt:
+          calculation.tileAreaSqFt,
+
+        tilesBeforeWastage:
+          calculation.tilesBeforeWastage,
+
+        wastageTiles:
+          calculation.wastageTiles,
+
+        finalTiles:
+          calculation.finalTiles,
+
+        tilesPerBox:
+          calculation.tilesPerBox,
+
+        boxesRequired:
+          calculation.boxesRequired,
+
+        tilesPurchased:
+          calculation.tilesPurchased,
+
+        installationMethod,
+
+        adhesiveQuantity:
+          calculation.adhesiveQuantity,
+
+        finalAdhesiveQuantity:
+          calculation.finalAdhesiveQuantity,
+
+        adhesiveCost:
+          calculation.adhesiveCost,
+
+        totalMaterialCost:
+          calculation.totalMaterialCost,
+      },
+    });
+  }, [
+    onResult,
+    calculation,
+    rate,
+    rateMode,
+    wastage,
+    tileLength,
+    tileWidth,
+    tileLengthUnit,
+    installationMethod,
   ]);
 
   // =========================

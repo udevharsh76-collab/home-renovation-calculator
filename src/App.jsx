@@ -23,6 +23,9 @@ import FieldMeasurement from "./FieldMeasurement";
 import FieldPhoto from "./FieldPhoto";
 import Estimate from "./Estimate";
 import NavigationHeader from "./NavigationHeader";
+import CalculationRecords from "./CalculationRecords";
+
+
 
 import {
   getProject,
@@ -585,6 +588,7 @@ function App() {
     electrical: "Electrical",
     plumbing: "Plumbing",
     labour: "Labour",
+    "calculation-records": "Calculation Records",
   };
 
 
@@ -728,22 +732,36 @@ function App() {
     );
   }
 
+  else if (
+  screen === "calculation-records"
+) {
+  pageContent = (
+    <CalculationRecords
+      items={boqItems}
+      onItemsChange={(updatedItems) => {
+        setBoqItems(updatedItems);
+      }}
+    />
+  );
+} 
 
   /* =========================================================
      BOQ
   ========================================================= */
 
-  else if (
-    screen === "boq"
-  ) {
-    pageContent = (
-      <BOQ
-        items={boqItems}
-        labourTotal={labourTotal}
-      />
-    );
-  }
-
+ else if (
+  screen === "boq"
+) {
+  pageContent = (
+    <BOQ
+      items={boqItems}
+      labourTotal={labourTotal}
+      onItemsChange={(updatedItems) => {
+        setBoqItems(updatedItems);
+      }}
+    />
+  );
+}
 
   /* =========================================================
      ESTIMATE
@@ -909,11 +927,6 @@ function App() {
      NO COMMON HEADER NEEDED
   ========================================================= */
 
-  if (
-    screen === "database"
-  ) {
-    return pageContent;
-  }
 
 
   /* =========================================================
@@ -964,6 +977,11 @@ function App() {
         onBack={goBack}
 
         onHome={goHome}
+
+        onNavigate={(nextScreen) => {
+         setScreen(nextScreen);
+        }
+      }
 
         calculatorSelector={
           calculatorSelector
