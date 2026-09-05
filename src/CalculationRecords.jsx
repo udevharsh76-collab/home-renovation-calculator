@@ -197,33 +197,51 @@ function CalculationRecords({
      REFRESH
   ======================================================= */
 
-  const handleRefresh = () => {
-    try {
-      const project = getProject();
+  /* =======================================================
+   REFRESH
+======================================================= */
 
-      const updatedItems =
-        Array.isArray(project?.boqItems)
-          ? project.boqItems
-          : [];
+const handleRefresh = () => {
+  try {
+    // Read the latest project directly from localStorage.
+    const rawProject = localStorage.getItem(
+      PROJECT_STORAGE_KEY
+    );
 
-      setRecords(updatedItems);
-
-      if (onItemsChange) {
-        onItemsChange(updatedItems);
-      }
-    } catch (error) {
-      console.error(
-        "Failed to refresh calculation records:",
-        error
-      );
-
+    if (!rawProject) {
       setRecords([]);
 
       if (onItemsChange) {
         onItemsChange([]);
       }
+
+      return;
     }
-  };
+
+    const project = JSON.parse(rawProject);
+
+    const updatedItems = Array.isArray(
+      project?.boqItems
+    )
+      ? project.boqItems
+      : [];
+
+    // Update this page immediately.
+    setRecords(updatedItems);
+
+    // Update App.jsx so the rest of the app
+    // receives the same refreshed BOQ data.
+    if (onItemsChange) {
+      onItemsChange([...updatedItems]);
+    }
+
+  } catch (error) {
+    console.error(
+      "Calculation Records refresh failed:",
+      error
+    );
+  }
+};
 
 
   /* =======================================================

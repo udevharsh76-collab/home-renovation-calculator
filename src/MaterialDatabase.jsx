@@ -5,6 +5,7 @@ function MaterialDatabase({
   onShoppingList,
   onBOQ,
   onFieldMode,
+  onResetProject,
   selectedMaterials,
   onSelectedMaterialsChange,
 })
@@ -68,31 +69,43 @@ function MaterialDatabase({
           </div>
 
           {/* SHOPPING LIST - TOP GREEN BUTTON */}
-          <div className="mt-8">
+          {/* TOP ACTION BUTTONS */}
+<div className="mt-8">
 
-            <button
-              type="button"
-              onClick={onShoppingList}
-              className="w-full rounded-xl bg-green-600 px-6 py-4 text-lg font-bold text-white shadow-md transition hover:bg-green-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-green-200"
-            >
-              🛒 Open Renovation Shopping List
-            </button>
+  <div className="grid grid-cols-3 gap-3">
 
-            <button
-              type="button"
-              onClick={onFieldMode}
-              className="mt-3 w-full rounded-xl bg-slate-900 px-6 py-4 text-lg font-bold text-white shadow-md transition hover:bg-slate-950 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-300"
-            >
-              📱 Open Field Mode
-            </button>
+    <button
+      type="button"
+      onClick={onShoppingList}
+      className="rounded-lg bg-green-600 px-3 py-3 text-sm font-bold text-white shadow-md transition hover:bg-green-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-green-200"
+    >
+      🛒 Shopping List
+    </button>
 
+    <button
+      type="button"
+      onClick={onFieldMode}
+      className="rounded-lg bg-slate-900 px-3 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-950 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-300"
+    >
+      📱 Field Mode
+    </button>
 
-            <p className="mt-2 text-center text-xs text-slate-500">
-              Add materials, accessories, quantities, specifications and
-              prices manually.
-            </p>
+    <button
+      type="button"
+      onClick={onResetProject}
+      className="rounded-lg bg-red-600 px-3 py-3 text-sm font-bold text-white shadow-md transition hover:bg-red-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
+    >
+      🔄 Reset
+    </button>
 
-          </div>
+  </div>
+
+  <p className="mt-2 text-center text-xs text-slate-500">
+    Add materials, accessories, quantities, specifications and
+    prices manually.
+  </p>
+
+</div>
 
           {/* MATERIAL SELECTION BOX */}
           <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/[0.06]">

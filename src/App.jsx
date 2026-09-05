@@ -30,6 +30,7 @@ import CalculationRecords from "./CalculationRecords";
 import {
   getProject,
   saveBOQItem,
+  clearProject,
 } from "./ProjectStorage";
 
 
@@ -136,6 +137,52 @@ function App() {
     });
   };
 
+  /* =========================================================
+   RESET ENTIRE PROJECT
+========================================================= */
+
+const handleResetProject = () => {
+  const confirmed = window.confirm(
+    "Reset the entire project?\n\nAll project information, rooms, measurements, materials, shopping list, BOQ, labour, photos and estimate data will be cleared."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  /*
+    Clear the saved project from localStorage
+    and create a completely fresh project.
+  */
+  clearProject();
+
+  /*
+    Reset all App-level React state.
+  */
+  setSelectedMaterials([]);
+  setBoqItems([]);
+  setLabourTotal(0);
+  setCurrentCalculation(null);
+
+  /*
+    Reset navigation.
+  */
+  setHistory([]);
+
+  localStorage.removeItem(
+    "renovatecalc_navigation_history"
+  );
+
+  /*
+    Return to the existing Home / Database screen.
+  */
+  setScreenState("database");
+
+  localStorage.setItem(
+    "renovatecalc_current_screen",
+    "database"
+  );
+};
 
   /* =========================================================
      HOME
@@ -916,7 +963,13 @@ function App() {
 
         onFieldMode={() => {
           setScreen("field");
+
         }}
+
+        onResetProject={
+          handleResetProject
+        }
+         
       />
     );
   }

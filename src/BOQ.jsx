@@ -291,9 +291,23 @@ function BOQ({
    * ============================================================
    */
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
+ const handleRefresh = () => {
+  try {
+    const savedProject = JSON.parse(
+      localStorage.getItem(PROJECT_STORAGE_KEY)
+    );
+
+    const refreshedItems = Array.isArray(savedProject?.boqItems)
+      ? savedProject.boqItems
+      : [];
+
+    if (onItemsChange) {
+      onItemsChange(refreshedItems);
+    }
+  } catch (error) {
+    console.error("Failed to refresh BOQ:", error);
+  }
+};
 
   /*
    * ============================================================
