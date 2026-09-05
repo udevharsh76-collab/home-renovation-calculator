@@ -116,11 +116,66 @@ function LabourCalculation({ onResult }) {
    * This is what connects the Labour Calculator
    * to the BOQ.
    */
-  useEffect(() => {
-    if (onResult) {
-      onResult(totalLabourCost);
-    }
-  }, [totalLabourCost, onResult]);
+  /*
+ * Send structured labour data to App.jsx.
+ *
+ * Labour cost:
+ * Labourers × Working Days × Rate / Day
+ *
+ * BOQ quantity:
+ * Total Labour Man-Days
+ *
+ * This prevents the total labour cost from being
+ * incorrectly treated as both quantity and rate.
+ */
+useEffect(() => {
+  if (onResult) {
+    const manDays = totalWorkingDays;
+
+    const averageRate =
+      manDays > 0
+        ? totalLabourCost / manDays
+        : 0;
+
+    onResult({
+      material:
+        labourRows.length === 1
+          ? labourRows[0].labourType
+          : "Labour",
+
+      item:
+        labourRows.length === 1
+          ? labourRows[0].labourType
+          : "Labour",
+
+      category: "Labour",
+
+      specification:
+        labourRows.length === 1
+          ? `${labourRows[0].numberOfLabourers} labourers × ${labourRows[0].workingDays} days`
+          : `${labourRows.length} labour entries`,
+
+      description: "Labour requirement",
+
+      quantity: manDays,
+
+      finalQuantity: manDays,
+
+      unit: "man-days",
+
+      rate: averageRate,
+
+      amount: totalLabourCost,
+
+      cost: totalLabourCost,
+    });
+  }
+}, [
+  totalLabourCost,
+  totalWorkingDays,
+  labourRows,
+  onResult,
+]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
