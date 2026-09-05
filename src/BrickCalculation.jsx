@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function lengthToMm(value, unit) {
   const number = Number(value) || 0;
@@ -135,7 +135,9 @@ function ResultRow({
   );
 }
 
-export default function BrickCalculation() {
+export default function BrickCalculation({
+  onResult,
+}) {
   const [wallLength, setWallLength] = useState("");
   const [wallLengthUnit, setWallLengthUnit] = useState("ft");
 
@@ -156,6 +158,10 @@ export default function BrickCalculation() {
 
   const [brickRate, setBrickRate] = useState("");
   const [brickWastage, setBrickWastage] = useState("");
+
+  // =========================================================
+  // BRICK CALCULATION
+  // =========================================================
 
   const calculation = useMemo(() => {
     // -------------------------
@@ -267,6 +273,10 @@ export default function BrickCalculation() {
       finalBricksRequired *
       (Number(brickRate) || 0);
 
+    // -------------------------
+    // RETURN CALCULATION
+    // -------------------------
+
     return {
       wallLengthMm,
       wallHeightMm,
@@ -311,6 +321,52 @@ export default function BrickCalculation() {
     brickRate,
     brickWastage,
   ]);
+
+  // =========================================================
+  // SEND RESULT TO APP
+  // =========================================================
+
+  useEffect(() => {
+    if (!onResult) {
+      return;
+    }
+
+    onResult({
+      category: "Bricks",
+      material: "Bricks",
+      item: "Bricks",
+
+      quantity: calculation.finalBricksRequired,
+      unit: "bricks",
+
+      rate: Number(brickRate) || 0,
+
+      amount: calculation.brickCost,
+
+      wastage: Number(brickWastage) || 0,
+
+      wallLength: calculation.wallLengthMm,
+      wallHeight: calculation.wallHeightMm,
+      wallThickness: calculation.wallThicknessMm,
+
+      brickLength: calculation.brickLengthMm,
+      brickWidth: calculation.brickWidthMm,
+      brickHeight: calculation.brickHeightMm,
+
+      mortarThickness: calculation.mortarThicknessMm,
+
+      wallVolume: calculation.wallVolume,
+    });
+  }, [
+    onResult,
+    calculation,
+    brickRate,
+    brickWastage,
+  ]);
+
+  // =========================================================
+  // PAGE
+  // =========================================================
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -537,9 +593,9 @@ export default function BrickCalculation() {
               />
 
               <ResultRow
-                label={`Brick Wastage (${
+                label={`Brick Wastage ${
                   brickWastage || 0
-                }%)`}
+                }%`}
                 value={`+ ${calculation.brickWastageQuantity.toFixed(
                   2
                 )} bricks`}

@@ -360,13 +360,6 @@ function BOQ({
               then generate the BOQ.
             </p>
 
-            <button
-              type="button"
-              onClick={onBack}
-              className="mt-6 rounded-xl bg-blue-800 px-6 py-3 font-semibold text-white transition hover:bg-blue-900"
-            >
-              ← Go Back
-            </button>
 
           </div>
 
