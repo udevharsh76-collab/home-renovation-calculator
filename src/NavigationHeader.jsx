@@ -23,7 +23,7 @@ function NavigationHeader({
       label: "Records",
     },
     {
-      id: "projects",
+      id: "room-management",
       label: "Projects",
     },
     {

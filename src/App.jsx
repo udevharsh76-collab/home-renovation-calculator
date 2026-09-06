@@ -901,6 +901,8 @@ function App() {
 
       <NavigationHeader
 
+        screen={screen}
+
         title={
           materialNames[screen] ||
           ""
