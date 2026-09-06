@@ -21,7 +21,7 @@ const ROOM_TYPES = [
   "Other",
 ];
 
-export default function RoomManagement({ onBack, onHome }) {
+export default function RoomManagement({ onBack, onHome, onRoomSelect, }) {
   const [rooms, setRooms] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
@@ -98,9 +98,13 @@ export default function RoomManagement({ onBack, onHome }) {
     loadRooms();
   };
 
-  const handleSelect = (room) => {
-    setSelectedRoomId(room.id);
-  };
+ const handleSelect = (room) => {
+  setSelectedRoomId(room.id);
+
+  onRoomSelect?.(room);
+
+  onBack?.();
+};
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -117,13 +121,6 @@ export default function RoomManagement({ onBack, onHome }) {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onBack}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
-          >
-            ← Back
-          </button>
         </div>
       </div>
 

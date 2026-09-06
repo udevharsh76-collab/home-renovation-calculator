@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import MaterialDatabase from "./MaterialDatabase";
@@ -24,8 +24,7 @@ import FieldPhoto from "./FieldPhoto";
 import Estimate from "./Estimate";
 import NavigationHeader from "./NavigationHeader";
 import CalculationRecords from "./CalculationRecords";
-
-
+import RoomManagement from "./RoomManagement";
 
 import {
   getProject,
@@ -75,10 +74,6 @@ function App() {
       return;
     }
 
-    /*
-      When moving to another calculator/page,
-      clear the previous unsaved calculator result.
-    */
     setCurrentCalculation(null);
 
     setHistory((previousHistory) => {
@@ -137,52 +132,42 @@ function App() {
     });
   };
 
+
   /* =========================================================
-   RESET ENTIRE PROJECT
-========================================================= */
+     RESET ENTIRE PROJECT
+  ========================================================= */
 
-const handleResetProject = () => {
-  const confirmed = window.confirm(
-    "Reset the entire project?\n\nAll project information, rooms, measurements, materials, shopping list, BOQ, labour, photos and estimate data will be cleared."
-  );
+  const handleResetProject = () => {
+    const confirmed = window.confirm(
+      "Reset the entire project?\n\nAll project information, rooms, measurements, materials, shopping list, BOQ, labour, photos and estimate data will be cleared."
+    );
 
-  if (!confirmed) {
-    return;
-  }
+    if (!confirmed) {
+      return;
+    }
 
-  /*
-    Clear the saved project from localStorage
-    and create a completely fresh project.
-  */
-  clearProject();
+    clearProject();
 
-  /*
-    Reset all App-level React state.
-  */
-  setSelectedMaterials([]);
-  setBoqItems([]);
-  setLabourTotal(0);
-  setCurrentCalculation(null);
+    setSelectedMaterials([]);
+    setSelectedRoom(null);
+    setBoqItems([]);
+    setLabourTotal(0);
+    setCurrentCalculation(null);
 
-  /*
-    Reset navigation.
-  */
-  setHistory([]);
+    setHistory([]);
 
-  localStorage.removeItem(
-    "renovatecalc_navigation_history"
-  );
+    localStorage.removeItem(
+      "renovatecalc_navigation_history"
+    );
 
-  /*
-    Return to the existing Home / Database screen.
-  */
-  setScreenState("database");
+    setScreenState("database");
 
-  localStorage.setItem(
-    "renovatecalc_current_screen",
-    "database"
-  );
-};
+    localStorage.setItem(
+      "renovatecalc_current_screen",
+      "database"
+    );
+  };
+
 
   /* =========================================================
      HOME
@@ -227,6 +212,14 @@ const handleResetProject = () => {
 
 
   /* =========================================================
+     FIELD MODE ROOM
+  ========================================================= */
+
+  const [selectedRoom, setSelectedRoom] =
+    useState(null);
+
+
+  /* =========================================================
      BOQ ITEMS
   ========================================================= */
 
@@ -247,32 +240,13 @@ const handleResetProject = () => {
      LABOUR TOTAL
   ========================================================= */
 
-  const [labourTotal, setLabourTotal] = useState(0);
+  const [labourTotal, setLabourTotal] =
+    useState(0);
 
 
   /* =========================================================
      CURRENT CALCULATOR RESULT
   ========================================================= */
-
-  /*
-    Every calculator sends its result here.
-
-    The Save button uses this single piece of state.
-
-    Example:
-
-    CementCalculation
-          ↓
-    onResult(result)
-          ↓
-    currentCalculation
-          ↓
-    SAVE TO PROJECT
-          ↓
-    ProjectStorage
-          ↓
-    BOQ
-  */
 
   const [
     currentCalculation,
@@ -292,12 +266,6 @@ const handleResetProject = () => {
 
       return;
     }
-
-    /*
-      Labour can return a simple number through onResult.
-      Convert it into the same structure used by
-      the common Save system.
-    */
 
     let result = currentCalculation;
 
@@ -322,17 +290,6 @@ const handleResetProject = () => {
       };
     }
 
-    /*
-      Find the best quantity.
-
-      Calculators such as Cement provide:
-
-      quantity = before wastage
-      finalQuantity = after wastage
-
-      BOQ should use the final quantity.
-    */
-
     const quantity = Number(
       result.finalQuantity ??
       result.quantity ??
@@ -340,26 +297,11 @@ const handleResetProject = () => {
       0
     );
 
-    /*
-      Find the rate.
-
-      Different calculators may use:
-      rate
-      price
-    */
-
     const price = Number(
       result.rate ??
       result.price ??
       0
     );
-
-    /*
-      Find amount.
-
-      Prefer calculator's calculated amount.
-      Otherwise calculate quantity × rate.
-    */
 
     const amount = Number(
       result.amount ??
@@ -370,16 +312,6 @@ const handleResetProject = () => {
     ) || 0;
 
 
-    /*
-      Generate the ID ONLY when Save is clicked.
-
-      This is important.
-
-      We do NOT generate the ID inside the calculator's
-      onResult because onResult may run every time the
-      user changes an input.
-    */
-
     const boqId =
       result.id &&
       String(result.id).startsWith("BOQ-")
@@ -389,19 +321,10 @@ const handleResetProject = () => {
             .slice(2, 7)}`;
 
 
-    /*
-      Convert calculator result into the standard
-      RenovateCalc BOQ structure.
-    */
-
     const boqItem = {
       ...result,
 
       id: boqId,
-
-      /*
-        Standard BOQ fields
-      */
 
       item:
         result.item ||
@@ -425,12 +348,6 @@ const handleResetProject = () => {
         result.description ||
         "",
 
-      /*
-        IMPORTANT:
-
-        BOQ uses final quantity.
-      */
-
       quantity,
 
       finalQuantity:
@@ -442,32 +359,13 @@ const handleResetProject = () => {
         result.unit ||
         "unit",
 
-      /*
-        IMPORTANT:
-
-        ProjectStorage / BOQ expects price.
-      */
-
       price,
 
-      /*
-        Keep rate as well because your calculators
-        already use it.
-      */
-
       rate: price,
-
-      /*
-        Standard calculated amount
-      */
 
       amount,
 
       cost: amount,
-
-      /*
-        Mark the source.
-      */
 
       source: "calculator",
 
@@ -476,20 +374,9 @@ const handleResetProject = () => {
     };
 
 
-    /*
-      Save into ProjectStorage.
-
-      saveBOQItem() returns the complete updated project.
-    */
-
     const updatedProject =
       saveBOQItem(boqItem);
 
-
-    /*
-      Immediately update App state so the BOQ page
-      sees the newly saved item without refreshing.
-    */
 
     setBoqItems(
       Array.isArray(
@@ -499,10 +386,6 @@ const handleResetProject = () => {
         : []
     );
 
-
-    /*
-      If this was labour, keep labour total updated.
-    */
 
     if (
       result.material === "Labour" ||
@@ -514,10 +397,6 @@ const handleResetProject = () => {
       );
     }
 
-
-    /*
-      Keep the result in state but mark it as saved.
-    */
 
     setCurrentCalculation({
       ...result,
@@ -635,7 +514,12 @@ const handleResetProject = () => {
     electrical: "Electrical",
     plumbing: "Plumbing",
     labour: "Labour",
-    "calculation-records": "Calculation Records",
+
+    "calculation-records":
+      "Calculation Records",
+
+    "room-management":
+      "Room Management",
   };
 
 
@@ -702,6 +586,7 @@ const handleResetProject = () => {
   else if (screen === "field") {
     pageContent = (
       <FieldMode
+
         onMeasurement={() => {
           setScreen(
             "field-measurement"
@@ -743,9 +628,49 @@ const handleResetProject = () => {
         onEstimate={() => {
           setScreen("estimate");
         }}
+
+        /* =====================================================
+           ROOM MANAGEMENT CONNECTION
+        ===================================================== */
+
+        selectedRoom={selectedRoom}
+
+        onRoomSelect={(room) => {
+          setSelectedRoom(room);
+        }}
+
+        onManageRooms={() => {
+          setScreen(
+            "room-management"
+          );
+        }}
+
       />
     );
   }
+
+
+  /* =========================================================
+     ROOM MANAGEMENT
+  ========================================================= */
+
+  else if (
+  screen === "room-management"
+) {
+  pageContent = (
+    <RoomManagement
+
+      onBack={() => {
+        setScreen("field-measurement");
+      }}
+
+      onRoomSelect={(room) => {
+        setSelectedRoom(room);
+      }}
+
+    />
+  );
+}
 
 
   /* =========================================================
@@ -753,12 +678,14 @@ const handleResetProject = () => {
   ========================================================= */
 
   else if (
-    screen === "field-measurement"
-  ) {
-    pageContent = (
-      <FieldMeasurement />
-    );
-  }
+  screen === "field-measurement"
+) {
+  pageContent = (
+    <FieldMeasurement
+      selectedRoom={selectedRoom}
+    />
+  );
+}
 
 
   /* =========================================================
@@ -779,36 +706,43 @@ const handleResetProject = () => {
     );
   }
 
+
+  /* =========================================================
+     CALCULATION RECORDS
+  ========================================================= */
+
   else if (
-  screen === "calculation-records"
-) {
-  pageContent = (
-    <CalculationRecords
-      items={boqItems}
-      onItemsChange={(updatedItems) => {
-        setBoqItems(updatedItems);
-      }}
-    />
-  );
-} 
+    screen === "calculation-records"
+  ) {
+    pageContent = (
+      <CalculationRecords
+        items={boqItems}
+        onItemsChange={(updatedItems) => {
+          setBoqItems(updatedItems);
+        }}
+      />
+    );
+  }
+
 
   /* =========================================================
      BOQ
   ========================================================= */
 
- else if (
-  screen === "boq"
-) {
-  pageContent = (
-    <BOQ
-      items={boqItems}
-      labourTotal={labourTotal}
-      onItemsChange={(updatedItems) => {
-        setBoqItems(updatedItems);
-      }}
-    />
-  );
-}
+  else if (
+    screen === "boq"
+  ) {
+    pageContent = (
+      <BOQ
+        items={boqItems}
+        labourTotal={labourTotal}
+        onItemsChange={(updatedItems) => {
+          setBoqItems(updatedItems);
+        }}
+      />
+    );
+  }
+
 
   /* =========================================================
      ESTIMATE
@@ -837,24 +771,14 @@ const handleResetProject = () => {
       calculators[screen];
 
 
-    /*
-      LABOUR
-
-      Labour previously returned only a number.
-
-      We now convert it into currentCalculation so
-      the same Save button can be used.
-    */
+    /* =======================================================
+       LABOUR
+    ======================================================= */
 
     if (screen === "labour") {
       pageContent = (
         <Calculator
           onResult={(result) => {
-
-            /*
-              If LabourCalculation returns a number,
-              keep compatibility with existing code.
-            */
 
             if (
               typeof result === "number"
@@ -870,11 +794,6 @@ const handleResetProject = () => {
               return;
             }
 
-
-            /*
-              If LabourCalculation already returns
-              an object, use it directly.
-            */
 
             if (
               result &&
@@ -907,22 +826,10 @@ const handleResetProject = () => {
       );
     }
 
-    /*
-      ALL MATERIAL CALCULATORS
 
-      Cement
-      Sand
-      Bricks
-      Tiles
-      Paint
-      Putty
-      Flooring
-      Steel
-      Electrical
-      Plumbing
-
-      all use exactly the same onResult system.
-    */
+    /* =======================================================
+       ALL MATERIAL CALCULATORS
+    ======================================================= */
 
     else {
       pageContent = (
@@ -943,6 +850,7 @@ const handleResetProject = () => {
   else {
     pageContent = (
       <MaterialDatabase
+
         onCalculate={
           handleCalculate
         }
@@ -963,23 +871,15 @@ const handleResetProject = () => {
 
         onFieldMode={() => {
           setScreen("field");
-
         }}
 
         onResetProject={
           handleResetProject
         }
-         
+
       />
     );
   }
-
-
-  /* =========================================================
-     HOME SCREEN
-     NO COMMON HEADER NEEDED
-  ========================================================= */
-
 
 
   /* =========================================================
@@ -1000,6 +900,7 @@ const handleResetProject = () => {
     <div className="min-h-screen bg-slate-50">
 
       <NavigationHeader
+
         title={
           materialNames[screen] ||
           ""
@@ -1008,20 +909,28 @@ const handleResetProject = () => {
         subtitle={
           screen === "field"
             ? "Site Field Mode"
+
             : screen ===
               "field-measurement"
             ? "Field Measurement"
+
             : screen ===
               "field-photo"
             ? "Field Photo"
+
             : screen ===
               "shopping-list"
             ? "Shopping List"
+
             : screen === "boq"
             ? "Bill of Quantities"
-            : screen ===
-              "estimate"
+
+            : screen === "estimate"
             ? "Project Estimate"
+
+            : screen === "room-management"
+            ? "Room Management"
+
             : materialNames[
                 screen
               ] || ""
@@ -1032,13 +941,13 @@ const handleResetProject = () => {
         onHome={goHome}
 
         onNavigate={(nextScreen) => {
-         setScreen(nextScreen);
-        }
-      }
+          setScreen(nextScreen);
+        }}
 
         calculatorSelector={
           calculatorSelector
         }
+
       />
 
 
@@ -1049,18 +958,7 @@ const handleResetProject = () => {
 
       {/* =====================================================
           ONE COMMON SAVE BUTTON
-          =====================================================
-
-          This button exists in App.jsx only.
-
-          We do NOT put Save buttons inside every calculator.
-
-          Every calculator sends its result to:
-
-              currentCalculation
-
-          This button saves that result.
-      */}
+      ===================================================== */}
 
       {isCalculatorPage && (
         <div className="border-t border-slate-200 bg-white px-6 py-6">
@@ -1078,15 +976,19 @@ const handleResetProject = () => {
                   </p>
 
                   <h3 className="mt-1 text-lg font-bold text-slate-900">
-                      {currentCalculation
+
+                    {currentCalculation
                       ? (
-                      currentCalculation.material ||
-                      currentCalculation.item ||
-                      (screen === "labour"
-                      ? "Labour"
-                      : "Calculation")
+                        currentCalculation.material ||
+                        currentCalculation.item ||
+                        (
+                          screen === "labour"
+                            ? "Labour"
+                            : "Calculation"
+                        )
                       )
                       : "Calculation Not Saved"}
+
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-600">
@@ -1113,16 +1015,20 @@ const handleResetProject = () => {
                   className={`rounded-xl px-7 py-3 text-sm font-bold shadow-sm transition ${
                     !currentCalculation
                       ? "cursor-not-allowed bg-slate-300 text-slate-500"
+
                       : currentCalculation.__saved
                       ? "bg-green-600 text-white hover:bg-green-700"
+
                       : "bg-blue-700 text-white hover:bg-blue-800"
                   }`}
                 >
 
                   {!currentCalculation
                     ? "Save to Project"
+
                     : currentCalculation.__saved
                     ? "✓ Saved to Project"
+
                     : "Save to Project"}
 
                 </button>

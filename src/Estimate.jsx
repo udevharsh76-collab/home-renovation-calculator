@@ -199,18 +199,7 @@ function Estimate({
 
               {/* REFRESH BUTTON */}
 
-              <button
-                type="button"
-                onClick={handleRefresh}
-                className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 active:scale-95"
-              >
-                <span className="text-base">
-                  ↻
-                </span>
-
-                Refresh
-              </button>
-
+             
               {/* TOTAL ESTIMATE */}
 
               <div className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm">

@@ -1352,13 +1352,6 @@ function ShoppingList({ onBack, onBOQ }) {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-100"
-            >
-              ← Materials
-            </button>
           </div>
         </div>
       </header>
